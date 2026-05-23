@@ -1,0 +1,577 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Admin — Orçamentos Express</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;600;700&family=DM+Sans:wght@300;400;500&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@tabler/icons-webfont@3.2.0/tabler-icons.min.css">
+<style>
+*{box-sizing:border-box;margin:0;padding:0}
+:root{--brand:#1a5c3a;--brand2:#0f3d27;--accent:#f0a500;--light:#e8f5ee;--text:#1a1a18;--muted:#6b7280;--border:#e5e7eb;--bg:#f3f4f0;--white:#fff;--danger:#dc2626;--success:#16a34a;--warning:#d97706}
+body{font-family:'DM Sans',sans-serif;background:var(--bg);color:var(--text);min-height:100vh}
+
+/* LOGIN */
+.login-screen{min-height:100vh;display:flex;align-items:center;justify-content:center;background:var(--brand2)}
+.login-card{background:var(--white);border-radius:16px;padding:2.5rem;width:100%;max-width:380px;box-shadow:0 20px 60px rgba(0,0,0,0.2)}
+.login-logo{display:flex;align-items:center;gap:10px;font-family:'Syne',sans-serif;font-size:18px;font-weight:700;color:var(--brand);margin-bottom:0.25rem}
+.login-logo-icon{width:36px;height:36px;background:var(--brand);border-radius:8px;display:flex;align-items:center;justify-content:center}
+.login-badge{display:inline-flex;align-items:center;gap:4px;background:#fef2f2;color:#991b1b;font-size:11px;padding:2px 9px;border-radius:20px;font-weight:600;margin-bottom:1.5rem}
+.login-card h2{font-family:'Syne',sans-serif;font-size:1.3rem;font-weight:700;margin-bottom:0.25rem}
+.login-card p{font-size:13px;color:var(--muted);margin-bottom:1.5rem}
+.field{display:flex;flex-direction:column;gap:5px;margin-bottom:1rem}
+.field label{font-size:13px;font-weight:500;color:#374151}
+.field input{padding:10px 12px;border:1.5px solid var(--border);border-radius:9px;font-size:14px;font-family:'DM Sans',sans-serif;outline:none;transition:border-color .2s}
+.field input:focus{border-color:var(--brand);box-shadow:0 0 0 3px rgba(26,92,58,0.1)}
+.btn-login{width:100%;padding:12px;background:var(--brand);color:#fff;border:none;border-radius:9px;font-size:15px;font-weight:500;cursor:pointer;font-family:'DM Sans',sans-serif;transition:background .2s;display:flex;align-items:center;justify-content:center;gap:8px}
+.btn-login:hover{background:var(--brand2)}
+.alert-err{background:#fef2f2;border:1px solid #fecaca;color:#991b1b;padding:10px 12px;border-radius:8px;font-size:13px;margin-bottom:1rem;display:none;align-items:center;gap:8px}
+.alert-err.show{display:flex}
+
+/* APP */
+.app-screen{display:none;min-height:100vh}
+.topbar{background:var(--brand2);padding:0.75rem 1.5rem;display:flex;align-items:center;gap:10px;position:sticky;top:0;z-index:50}
+.topbar-logo{display:flex;align-items:center;gap:9px;font-family:'Syne',sans-serif;font-size:16px;font-weight:700;color:#fff;text-decoration:none}
+.topbar-logo-icon{width:32px;height:32px;background:rgba(255,255,255,0.15);border-radius:7px;display:flex;align-items:center;justify-content:center}
+.admin-badge{background:#dc2626;color:#fff;font-size:11px;padding:2px 9px;border-radius:20px;font-weight:600;margin-left:4px}
+.topbar-right{margin-left:auto;display:flex;align-items:center;gap:10px}
+.btn-logout{display:flex;align-items:center;gap:6px;font-size:13px;color:rgba(255,255,255,0.8);background:rgba(255,255,255,0.1);border:none;border-radius:7px;padding:6px 12px;cursor:pointer;font-family:'DM Sans',sans-serif}
+.btn-logout:hover{background:rgba(255,255,255,0.18);color:#fff}
+
+.layout{display:flex;min-height:calc(100vh - 52px)}
+.sidebar{width:210px;background:var(--white);border-right:1px solid var(--border);padding:1rem 0;flex-shrink:0}
+.sidebar-item{display:flex;align-items:center;gap:9px;padding:9px 1.25rem;font-size:13px;color:var(--muted);cursor:pointer;border:none;background:none;width:100%;text-align:left;font-family:'DM Sans',sans-serif;transition:all .2s}
+.sidebar-item:hover{background:var(--bg);color:var(--text)}
+.sidebar-item.active{background:#fef2f2;color:#991b1b;font-weight:500}
+.sidebar-item.active i{color:#991b1b}
+.sidebar-item i{font-size:18px}
+.sidebar-section{font-size:11px;font-weight:600;letter-spacing:1px;color:var(--muted);padding:1rem 1.25rem 0.4rem;text-transform:uppercase}
+.sidebar-divider{height:1px;background:var(--border);margin:0.5rem 0}
+
+.main{flex:1;padding:1.75rem;overflow-x:hidden}
+.page{display:none}.page.active{display:block}
+.page-title{font-family:'Syne',sans-serif;font-size:1.4rem;font-weight:700;margin-bottom:0.25rem}
+.page-sub{font-size:13px;color:var(--muted);margin-bottom:1.5rem}
+
+/* CARDS */
+.stats-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(160px,1fr));gap:12px;margin-bottom:1.5rem}
+.stat-card{background:var(--white);border:1px solid var(--border);border-radius:12px;padding:1.1rem 1.25rem}
+.stat-card .label{font-size:12px;color:var(--muted);margin-bottom:6px;display:flex;align-items:center;gap:6px}
+.stat-card .value{font-family:'Syne',sans-serif;font-size:1.8rem;font-weight:700}
+.stat-card .sub{font-size:11px;color:var(--muted);margin-top:4px}
+
+.section{background:var(--white);border:1px solid var(--border);border-radius:12px;padding:1.25rem 1.5rem;margin-bottom:1rem}
+.section-title{font-size:13px;font-weight:600;color:var(--muted);text-transform:uppercase;letter-spacing:.5px;margin-bottom:1rem;display:flex;align-items:center;justify-content:space-between;gap:10px}
+
+/* TABLE */
+.tbl-wrap{overflow-x:auto}
+table.admin-tbl{width:100%;border-collapse:collapse}
+.admin-tbl th{font-size:11px;font-weight:600;color:var(--muted);text-align:left;padding:8px 10px;border-bottom:1px solid var(--border);white-space:nowrap}
+.admin-tbl td{font-size:13px;padding:9px 10px;border-bottom:0.5px solid var(--border);vertical-align:middle}
+.admin-tbl tr:last-child td{border-bottom:none}
+.admin-tbl tr:hover td{background:var(--bg)}
+
+.badge{display:inline-flex;align-items:center;gap:3px;font-size:11px;padding:2px 8px;border-radius:20px;font-weight:500;white-space:nowrap}
+.badge-free{background:#f3f4f6;color:#374151}
+.badge-pro{background:#e8f5ee;color:#1a5c3a}
+.badge-business{background:#e6f1fb;color:#185FA5}
+.badge-active{background:#f0fdf4;color:#166534}
+.badge-blocked{background:#fef2f2;color:#991b1b}
+.badge-admin{background:#fef3c7;color:#92400e}
+
+.btn{display:inline-flex;align-items:center;gap:5px;padding:6px 12px;border-radius:7px;font-size:12px;font-weight:500;cursor:pointer;border:none;font-family:'DM Sans',sans-serif;transition:all .2s}
+.btn-p{background:var(--brand);color:#fff}.btn-p:hover{background:var(--brand2)}
+.btn-s{background:var(--white);color:var(--text);border:1px solid var(--border)}.btn-s:hover{background:var(--bg)}
+.btn-danger{background:#fef2f2;color:#dc2626;border:1px solid #fecaca}.btn-danger:hover{background:#fee2e2}
+.btn-warn{background:#fffbeb;color:#d97706;border:1px solid #fde68a}.btn-warn:hover{background:#fef3c7}
+.btn-success{background:#f0fdf4;color:#16a34a;border:1px solid #bbf7d0}.btn-success:hover{background:#dcfce7}
+.btn-sm{padding:4px 9px;font-size:11px;border-radius:6px}
+
+.search-bar{display:flex;align-items:center;gap:10px;margin-bottom:1rem}
+.search-bar input{flex:1;padding:8px 12px;border:1px solid var(--border);border-radius:8px;font-size:13px;font-family:'DM Sans',sans-serif;outline:none}
+.search-bar input:focus{border-color:var(--brand)}
+.search-bar select{padding:8px 10px;border:1px solid var(--border);border-radius:8px;font-size:13px;font-family:'DM Sans',sans-serif;background:var(--white);outline:none}
+
+/* MODAL */
+.modal-overlay{position:fixed;inset:0;background:rgba(0,0,0,0.45);z-index:200;display:none;align-items:center;justify-content:center}
+.modal-overlay.open{display:flex}
+.modal{background:var(--white);border-radius:14px;padding:1.75rem;max-width:460px;width:90%}
+.modal h3{font-family:'Syne',sans-serif;font-size:1.1rem;font-weight:700;margin-bottom:0.5rem}
+.modal p{font-size:13px;color:var(--muted);margin-bottom:1.25rem;line-height:1.6}
+.modal .field{margin-bottom:0.9rem}
+.modal .field select,.modal .field input{width:100%;padding:9px 11px;border:1.5px solid var(--border);border-radius:8px;font-size:13px;font-family:'DM Sans',sans-serif;outline:none}
+.modal .field select:focus,.modal .field input:focus{border-color:var(--brand)}
+.modal-actions{display:flex;gap:8px;justify-content:flex-end}
+
+.toast{position:fixed;bottom:24px;right:24px;background:#1a1a18;color:#fff;padding:10px 18px;border-radius:10px;font-size:13px;display:flex;align-items:center;gap:8px;z-index:999;transform:translateY(60px);opacity:0;transition:all .3s}
+.toast.show{transform:translateY(0);opacity:1}
+
+.empty-state{text-align:center;padding:2.5rem;color:var(--muted)}
+.empty-state i{font-size:36px;display:block;margin-bottom:0.5rem;opacity:0.4}
+
+.activity-item{display:flex;align-items:flex-start;gap:10px;padding:8px 0;border-bottom:0.5px solid var(--border)}
+.activity-item:last-child{border-bottom:none}
+.activity-icon{width:32px;height:32px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:15px;flex-shrink:0}
+.activity-text{font-size:13px;flex:1}
+.activity-time{font-size:11px;color:var(--muted);flex-shrink:0;margin-top:2px}
+
+@media(max-width:768px){.sidebar{display:none}.main{padding:1rem}}
+</style>
+</head>
+<body>
+
+<!-- LOGIN -->
+<div class="login-screen" id="login-screen">
+  <div class="login-card">
+    <div class="login-logo">
+      <div class="login-logo-icon"><i class="ti ti-file-invoice" style="color:#fff;font-size:18px" aria-hidden="true"></i></div>
+      Orçamentos Express
+    </div>
+    <div class="login-badge"><i class="ti ti-shield" aria-hidden="true"></i> Acesso Administrador</div>
+    <h2>Painel Admin</h2>
+    <p>Área restrita. Use as credenciais de administrador.</p>
+    <div class="alert-err" id="alert-err"><i class="ti ti-alert-circle" aria-hidden="true"></i><span id="alert-msg">Credenciais inválidas.</span></div>
+    <div class="field"><label>Login de administrador</label><input type="text" id="admin-user" placeholder="admin" autocomplete="username"></div>
+    <div class="field"><label>Senha</label><input type="password" id="admin-pass" placeholder="••••••••" autocomplete="current-password" onkeydown="if(event.key==='Enter')doLogin()"></div>
+    <button class="btn-login" onclick="doLogin()"><i class="ti ti-shield-lock" aria-hidden="true"></i> Entrar como Admin</button>
+    <p style="font-size:11px;color:var(--muted);text-align:center;margin-top:1rem">Login padrão: <strong>admin</strong> / <strong>admin123</strong><br>Altere em Configurações após o primeiro acesso.</p>
+  </div>
+</div>
+
+<!-- APP -->
+<div class="app-screen" id="app-screen">
+  <div class="topbar">
+    <div class="topbar-logo">
+      <div class="topbar-logo-icon"><i class="ti ti-file-invoice" style="color:#fff;font-size:17px" aria-hidden="true"></i></div>
+      Orçamentos Express
+      <span class="admin-badge"><i class="ti ti-shield" aria-hidden="true"></i> ADMIN</span>
+    </div>
+    <div class="topbar-right">
+      <span style="font-size:12px;color:rgba(255,255,255,0.6)" id="topbar-datetime"></span>
+      <button class="btn-logout" onclick="doLogout()"><i class="ti ti-logout" aria-hidden="true"></i> Sair</button>
+    </div>
+  </div>
+
+  <div class="layout">
+    <div class="sidebar">
+      <div class="sidebar-section">Painel</div>
+      <button class="sidebar-item active" id="sb-dashboard" onclick="showPage('dashboard')"><i class="ti ti-dashboard"></i>Dashboard</button>
+      <button class="sidebar-item" id="sb-usuarios" onclick="showPage('usuarios')"><i class="ti ti-users"></i>Usuários</button>
+      <button class="sidebar-item" id="sb-orcamentos" onclick="showPage('orcamentos')"><i class="ti ti-file-text"></i>Orçamentos</button>
+      <button class="sidebar-item" id="sb-recibos" onclick="showPage('recibos')"><i class="ti ti-receipt"></i>Recibos</button>
+      <div class="sidebar-divider"></div>
+      <div class="sidebar-section">Sistema</div>
+      <button class="sidebar-item" id="sb-config" onclick="showPage('config')"><i class="ti ti-settings"></i>Configurações</button>
+      <div class="sidebar-divider"></div>
+      <button class="sidebar-item" onclick="doLogout()" style="color:#dc2626"><i class="ti ti-logout"></i>Sair</button>
+    </div>
+
+    <div class="main">
+
+      <!-- DASHBOARD -->
+      <div class="page active" id="page-dashboard">
+        <div class="page-title">Dashboard</div>
+        <div class="page-sub" id="dash-sub">Visão geral do sistema</div>
+        <div class="stats-grid" id="stats-grid"></div>
+        <div style="display:grid;grid-template-columns:1fr 1fr;gap:1rem">
+          <div class="section">
+            <div class="section-title"><span><i class="ti ti-users" style="font-size:15px" aria-hidden="true"></i> Usuários por plano</span></div>
+            <div id="plan-chart"></div>
+          </div>
+          <div class="section">
+            <div class="section-title"><span><i class="ti ti-activity" style="font-size:15px" aria-hidden="true"></i> Atividade recente</span></div>
+            <div id="activity-list"></div>
+          </div>
+        </div>
+      </div>
+
+      <!-- USUÁRIOS -->
+      <div class="page" id="page-usuarios">
+        <div class="page-title">Usuários</div>
+        <div class="page-sub">Gerencie todos os usuários cadastrados</div>
+        <div class="search-bar">
+          <input type="text" id="user-search" placeholder="Buscar por nome ou e-mail..." oninput="renderUsers()">
+          <select id="user-filter" onchange="renderUsers()">
+            <option value="">Todos os planos</option>
+            <option value="free">Gratuito</option>
+            <option value="pro">Profissional</option>
+            <option value="business">Empresarial</option>
+          </select>
+          <select id="user-status-filter" onchange="renderUsers()">
+            <option value="">Qualquer status</option>
+            <option value="active">Ativos</option>
+            <option value="blocked">Bloqueados</option>
+          </select>
+          <button class="btn btn-p" onclick="renderUsers()"><i class="ti ti-refresh" aria-hidden="true"></i></button>
+        </div>
+        <div class="section">
+          <div class="tbl-wrap">
+            <table class="admin-tbl">
+              <thead><tr>
+                <th>Usuário</th><th>E-mail</th><th>Plano</th><th>Status</th><th>Cadastro</th><th>Orçamentos</th><th>Ações</th>
+              </tr></thead>
+              <tbody id="users-tbody"></tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+
+      <!-- ORÇAMENTOS -->
+      <div class="page" id="page-orcamentos">
+        <div class="page-title">Orçamentos</div>
+        <div class="page-sub">Todos os orçamentos salvos no sistema</div>
+        <div class="search-bar">
+          <input type="text" id="orc-search" placeholder="Buscar por cliente ou número..." oninput="renderOrcamentos()">
+          <button class="btn btn-p" onclick="renderOrcamentos()"><i class="ti ti-refresh" aria-hidden="true"></i></button>
+        </div>
+        <div class="section">
+          <div class="tbl-wrap">
+            <table class="admin-tbl">
+              <thead><tr>
+                <th>Nº</th><th>Usuário</th><th>Cliente</th><th>Data</th><th>Total</th><th>Itens</th>
+              </tr></thead>
+              <tbody id="orc-tbody"></tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+
+      <!-- RECIBOS -->
+      <div class="page" id="page-recibos">
+        <div class="page-title">Recibos</div>
+        <div class="page-sub">Todos os recibos emitidos no sistema</div>
+        <div class="search-bar">
+          <input type="text" id="rec-search" placeholder="Buscar por número ou pagador..." oninput="renderRecibos()">
+          <button class="btn btn-p" onclick="renderRecibos()"><i class="ti ti-refresh" aria-hidden="true"></i></button>
+        </div>
+        <div class="section">
+          <div class="tbl-wrap">
+            <table class="admin-tbl">
+              <thead><tr>
+                <th>Nº</th><th>Usuário</th><th>Pagador</th><th>Data</th><th>Valor</th><th>Forma pgto</th>
+              </tr></thead>
+              <tbody id="rec-tbody"></tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+
+      <!-- CONFIG -->
+      <div class="page" id="page-config">
+        <div class="page-title">Configurações do Admin</div>
+        <div class="page-sub">Altere as credenciais de acesso ao painel</div>
+        <div class="section" style="max-width:460px">
+          <div class="section-title">Credenciais de administrador</div>
+          <div class="field"><label>Login atual</label><input type="text" id="cfg-user" placeholder="admin"></div>
+          <div class="field"><label>Nova senha</label><input type="password" id="cfg-pass" placeholder="Nova senha (mínimo 6 caracteres)"></div>
+          <div class="field"><label>Confirmar nova senha</label><input type="password" id="cfg-pass2" placeholder="Repita a senha"></div>
+          <button class="btn btn-p" onclick="salvarCredenciais()" style="margin-top:4px"><i class="ti ti-check" aria-hidden="true"></i> Salvar credenciais</button>
+          <p style="font-size:11px;color:var(--muted);margin-top:10px">As credenciais ficam salvas no navegador deste computador.</p>
+        </div>
+        <div class="section" style="max-width:460px;margin-top:0">
+          <div class="section-title">Dados fictícios para demonstração</div>
+          <p style="font-size:13px;color:var(--muted);margin-bottom:12px">Gere usuários e orçamentos de exemplo para testar o painel.</p>
+          <div style="display:flex;gap:8px;flex-wrap:wrap">
+            <button class="btn btn-s" onclick="gerarDadosFicticios()"><i class="ti ti-database" aria-hidden="true"></i> Gerar dados de exemplo</button>
+            <button class="btn btn-danger" onclick="limparTudo()"><i class="ti ti-trash" aria-hidden="true"></i> Limpar todos os dados</button>
+          </div>
+        </div>
+      </div>
+
+    </div>
+  </div>
+</div>
+
+<!-- MODAL EDITAR USUÁRIO -->
+<div class="modal-overlay" id="modal-user">
+  <div class="modal">
+    <h3 id="modal-user-title">Editar usuário</h3>
+    <p id="modal-user-sub"></p>
+    <div class="field"><label>Plano</label>
+      <select id="modal-plan">
+        <option value="free">Gratuito</option>
+        <option value="pro">Profissional</option>
+        <option value="business">Empresarial</option>
+      </select>
+    </div>
+    <div class="field"><label>Status</label>
+      <select id="modal-status">
+        <option value="active">Ativo</option>
+        <option value="blocked">Bloqueado</option>
+      </select>
+    </div>
+    <div class="modal-actions">
+      <button class="btn btn-s" onclick="closeModal()">Cancelar</button>
+      <button class="btn btn-p" onclick="salvarUsuario()"><i class="ti ti-check" aria-hidden="true"></i> Salvar</button>
+    </div>
+  </div>
+</div>
+
+<div class="toast" id="toast"></div>
+
+<script>
+const DEFAULT_CREDS={user:'admin',pass:'admin123'};
+let editingUserId=null;
+
+function getCreds(){try{return JSON.parse(localStorage.getItem('orc_admin_creds')||JSON.stringify(DEFAULT_CREDS));}catch(e){return DEFAULT_CREDS;}}
+function getUsers(){try{return JSON.parse(localStorage.getItem('orc_users')||'[]');}catch(e){return[];}}
+function saveUsers(u){try{localStorage.setItem('orc_users',JSON.stringify(u));}catch(e){}}
+
+function doLogin(){
+  const u=document.getElementById('admin-user').value.trim();
+  const p=document.getElementById('admin-pass').value;
+  const creds=getCreds();
+  if(u===creds.user&&p===creds.pass){
+    localStorage.setItem('orc_admin_session',JSON.stringify({expires:Date.now()+86400000*1}));
+    showApp();
+  }else{
+    const al=document.getElementById('alert-err');al.className='alert-err show';
+    document.getElementById('alert-msg').textContent='Login ou senha incorretos.';
+    setTimeout(()=>al.classList.remove('show'),3000);
+  }
+}
+
+function doLogout(){localStorage.removeItem('orc_admin_session');document.getElementById('app-screen').style.display='none';document.getElementById('login-screen').style.display='flex';}
+
+function showApp(){
+  document.getElementById('login-screen').style.display='none';
+  document.getElementById('app-screen').style.display='block';
+  showPage('dashboard');
+  updateClock();setInterval(updateClock,60000);
+  const creds=getCreds();document.getElementById('cfg-user').value=creds.user;
+}
+
+function updateClock(){
+  const now=new Date();
+  document.getElementById('topbar-datetime').textContent=now.toLocaleDateString('pt-BR',{weekday:'short',day:'2-digit',month:'short'})+' · '+now.toLocaleTimeString('pt-BR',{hour:'2-digit',minute:'2-digit'});
+}
+
+function showPage(name){
+  document.querySelectorAll('.page').forEach(p=>p.classList.remove('active'));
+  document.querySelectorAll('.sidebar-item').forEach(s=>s.classList.remove('active'));
+  document.getElementById('page-'+name).classList.add('active');
+  const sb=document.getElementById('sb-'+name);if(sb)sb.classList.add('active');
+  if(name==='dashboard')renderDashboard();
+  else if(name==='usuarios')renderUsers();
+  else if(name==='orcamentos')renderOrcamentos();
+  else if(name==='recibos')renderRecibos();
+}
+
+function showToast(msg,icon='ti-check'){
+  const t=document.getElementById('toast');
+  t.innerHTML=`<i class="ti ${icon}" aria-hidden="true"></i>${msg}`;
+  t.classList.add('show');setTimeout(()=>t.classList.remove('show'),2800);
+}
+
+function fmt(v){return 'R$'+v.toFixed(2).replace('.',',').replace(/\B(?=(\d{3})+(?!\d))/g,'.');}
+function planLabel(p){return p==='pro'?'Profissional':p==='business'?'Empresarial':'Gratuito';}
+function planBadge(p){const cls=p==='pro'?'badge-pro':p==='business'?'badge-business':'badge-free';return`<span class="badge ${cls}">${planLabel(p)}</span>`;}
+function statusBadge(s){return s==='blocked'?'<span class="badge badge-blocked"><i class="ti ti-ban" aria-hidden="true"></i> Bloqueado</span>':'<span class="badge badge-active"><i class="ti ti-check" aria-hidden="true"></i> Ativo</span>';}
+
+function getAllOrcamentos(){
+  const users=getUsers();const all=[];
+  users.forEach(u=>{
+    try{const orcs=JSON.parse(localStorage.getItem('orc_hist_'+u.id)||'[]');orcs.forEach(o=>all.push({...o,userName:u.name,userEmail:u.email}));}catch(e){}
+  });
+  return all.sort((a,b)=>b.id-a.id);
+}
+
+function getAllRecibos(){
+  const users=getUsers();const all=[];
+  users.forEach(u=>{
+    try{const recs=JSON.parse(localStorage.getItem('orc_recibos_'+u.id)||'[]');recs.forEach(r=>all.push({...r,userName:u.name,userEmail:u.email}));}catch(e){}
+  });
+  return all.sort((a,b)=>b.id-a.id);
+}
+
+function getUserOrcCount(userId){try{return JSON.parse(localStorage.getItem('orc_hist_'+userId)||'[]').length;}catch(e){return 0;}}
+
+function renderDashboard(){
+  const users=getUsers();
+  const active=users.filter(u=>u.status!=='blocked').length;
+  const blocked=users.filter(u=>u.status==='blocked').length;
+  const pro=users.filter(u=>u.plan==='pro').length;
+  const business=users.filter(u=>u.plan==='business').length;
+  const totalOrcs=getAllOrcamentos().length;
+  const totalRecs=getAllRecibos().length;
+  const receitaSim=(pro*39+business*89);
+  document.getElementById('dash-sub').textContent='Atualizado em '+new Date().toLocaleString('pt-BR',{hour:'2-digit',minute:'2-digit'});
+
+  document.getElementById('stats-grid').innerHTML=`
+    <div class="stat-card"><div class="label"><i class="ti ti-users" style="font-size:15px;color:var(--brand)" aria-hidden="true"></i>Usuários</div><div class="value" style="color:var(--brand)">${users.length}</div><div class="sub">${active} ativos · ${blocked} bloqueados</div></div>
+    <div class="stat-card"><div class="label"><i class="ti ti-crown" style="font-size:15px;color:#d97706" aria-hidden="true"></i>Planos pagos</div><div class="value" style="color:#d97706">${pro+business}</div><div class="sub">${pro} Pro · ${business} Empresarial</div></div>
+    <div class="stat-card"><div class="label"><i class="ti ti-file-text" style="font-size:15px;color:#185FA5" aria-hidden="true"></i>Orçamentos</div><div class="value" style="color:#185FA5">${totalOrcs}</div><div class="sub">Total salvo</div></div>
+    <div class="stat-card"><div class="label"><i class="ti ti-receipt" style="font-size:15px;color:#534AB7" aria-hidden="true"></i>Recibos</div><div class="value" style="color:#534AB7">${totalRecs}</div><div class="sub">Total emitido</div></div>
+    <div class="stat-card"><div class="label"><i class="ti ti-currency-dollar" style="font-size:15px;color:#16a34a" aria-hidden="true"></i>Receita estimada</div><div class="value" style="color:#16a34a">${fmt(receitaSim)}</div><div class="sub">Por mês (simulado)</div></div>
+  `;
+
+  const planChart=document.getElementById('plan-chart');
+  const freeCount=users.filter(u=>u.plan==='free'||!u.plan).length;
+  const total=users.length||1;
+  const bars=[{label:'Gratuito',count:freeCount,color:'#9fd6b7'},{label:'Profissional',count:pro,color:'#1a5c3a'},{label:'Empresarial',count:business,color:'#185FA5'}];
+  planChart.innerHTML=bars.map(b=>`
+    <div style="display:flex;align-items:center;gap:10px;margin-bottom:10px">
+      <div style="font-size:12px;color:var(--muted);width:90px;flex-shrink:0">${b.label}</div>
+      <div style="flex:1;height:24px;background:var(--bg);border-radius:6px;overflow:hidden">
+        <div style="width:${Math.round(b.count/total*100)}%;height:100%;background:${b.color};border-radius:6px;min-width:${b.count?8:0}px;transition:width .4s"></div>
+      </div>
+      <div style="font-size:13px;font-weight:500;width:20px;text-align:right">${b.count}</div>
+    </div>`).join('');
+
+  const activity=document.getElementById('activity-list');
+  const recentUsers=users.slice(0,5);
+  if(!recentUsers.length){activity.innerHTML='<div class="empty-state" style="padding:1rem"><i class="ti ti-inbox" aria-hidden="true"></i>Sem atividade</div>';return;}
+  activity.innerHTML=recentUsers.map(u=>`
+    <div class="activity-item">
+      <div class="activity-icon" style="background:var(--light);color:var(--brand)"><i class="ti ti-user-plus" aria-hidden="true"></i></div>
+      <div class="activity-text"><strong>${u.name||u.email}</strong> se cadastrou<br><span style="font-size:11px;color:var(--muted)">${planLabel(u.plan||'free')}</span></div>
+      <div class="activity-time">${u.createdAt?new Date(u.createdAt).toLocaleDateString('pt-BR'):'—'}</div>
+    </div>`).join('');
+}
+
+function renderUsers(){
+  const search=(document.getElementById('user-search').value||'').toLowerCase();
+  const planFilter=document.getElementById('user-filter').value;
+  const statusFilter=document.getElementById('user-status-filter').value;
+  let users=getUsers();
+  if(search)users=users.filter(u=>(u.name||'').toLowerCase().includes(search)||(u.email||'').toLowerCase().includes(search));
+  if(planFilter)users=users.filter(u=>(u.plan||'free')===planFilter);
+  if(statusFilter==='blocked')users=users.filter(u=>u.status==='blocked');
+  else if(statusFilter==='active')users=users.filter(u=>u.status!=='blocked');
+  const tb=document.getElementById('users-tbody');
+  if(!users.length){tb.innerHTML=`<tr><td colspan="7"><div class="empty-state"><i class="ti ti-users" aria-hidden="true"></i>Nenhum usuário encontrado</div></td></tr>`;return;}
+  tb.innerHTML=users.map(u=>`
+    <tr>
+      <td><div style="font-weight:500">${u.name||'—'}</div><div style="font-size:11px;color:var(--muted)">#${u.id}</div></td>
+      <td style="color:var(--muted)">${u.email||'—'}</td>
+      <td>${planBadge(u.plan||'free')}</td>
+      <td>${statusBadge(u.status)}</td>
+      <td style="color:var(--muted);font-size:12px">${u.createdAt?new Date(u.createdAt).toLocaleDateString('pt-BR'):'—'}</td>
+      <td style="text-align:center">${getUserOrcCount(u.id)}</td>
+      <td>
+        <div style="display:flex;gap:4px;flex-wrap:wrap">
+          <button class="btn btn-s btn-sm" onclick="openEditModal(${u.id})"><i class="ti ti-edit" aria-hidden="true"></i> Editar</button>
+          ${u.status==='blocked'
+            ?`<button class="btn btn-success btn-sm" onclick="toggleBlock(${u.id})"><i class="ti ti-lock-open" aria-hidden="true"></i> Desbloquear</button>`
+            :`<button class="btn btn-danger btn-sm" onclick="toggleBlock(${u.id})"><i class="ti ti-ban" aria-hidden="true"></i> Bloquear</button>`}
+          <button class="btn btn-warn btn-sm" onclick="resetPlan(${u.id})"><i class="ti ti-refresh" aria-hidden="true"></i> Resetar</button>
+        </div>
+      </td>
+    </tr>`).join('');
+}
+
+function openEditModal(id){
+  const users=getUsers();const u=users.find(u=>u.id===id);if(!u)return;
+  editingUserId=id;
+  document.getElementById('modal-user-title').textContent='Editar usuário';
+  document.getElementById('modal-user-sub').textContent=`${u.name||'—'} · ${u.email}`;
+  document.getElementById('modal-plan').value=u.plan||'free';
+  document.getElementById('modal-status').value=u.status||'active';
+  document.getElementById('modal-user').classList.add('open');
+}
+
+function salvarUsuario(){
+  const users=getUsers();const idx=users.findIndex(u=>u.id===editingUserId);if(idx<0)return;
+  users[idx].plan=document.getElementById('modal-plan').value;
+  users[idx].status=document.getElementById('modal-status').value;
+  saveUsers(users);
+  const sess=JSON.parse(localStorage.getItem('orc_session')||'null');
+  if(sess&&sess.id===editingUserId){sess.plan=users[idx].plan;localStorage.setItem('orc_session',JSON.stringify(sess));}
+  closeModal();renderUsers();showToast('Usuário atualizado!');
+}
+
+function toggleBlock(id){
+  const users=getUsers();const idx=users.findIndex(u=>u.id===id);if(idx<0)return;
+  const blocked=users[idx].status==='blocked';
+  users[idx].status=blocked?'active':'blocked';
+  saveUsers(users);renderUsers();
+  showToast(blocked?'Usuário desbloqueado!':'Usuário bloqueado!',blocked?'ti-lock-open':'ti-ban');
+}
+
+function resetPlan(id){
+  if(!confirm('Resetar este usuário para o plano Gratuito?'))return;
+  const users=getUsers();const idx=users.findIndex(u=>u.id===id);if(idx<0)return;
+  users[idx].plan='free';saveUsers(users);
+  const sess=JSON.parse(localStorage.getItem('orc_session')||'null');
+  if(sess&&sess.id===id){sess.plan='free';localStorage.setItem('orc_session',JSON.stringify(sess));}
+  renderUsers();showToast('Plano resetado para Gratuito.');
+}
+
+function closeModal(){document.getElementById('modal-user').classList.remove('open');editingUserId=null;}
+
+function renderOrcamentos(){
+  const search=(document.getElementById('orc-search').value||'').toLowerCase();
+  let orcs=getAllOrcamentos();
+  if(search)orcs=orcs.filter(o=>(o.num||'').toLowerCase().includes(search)||(o.cliente||'').toLowerCase().includes(search)||(o.userEmail||'').toLowerCase().includes(search));
+  const tb=document.getElementById('orc-tbody');
+  if(!orcs.length){tb.innerHTML=`<tr><td colspan="6"><div class="empty-state"><i class="ti ti-file-text" aria-hidden="true"></i>Nenhum orçamento encontrado</div></td></tr>`;return;}
+  tb.innerHTML=orcs.map(o=>`
+    <tr>
+      <td><span style="font-weight:500">${o.num||'—'}</span></td>
+      <td><div style="font-size:12px">${o.userName||'—'}</div><div style="font-size:11px;color:var(--muted)">${o.userEmail||''}</div></td>
+      <td>${o.cliente||'—'}</td>
+      <td style="color:var(--muted);font-size:12px">${o.data?new Date(o.data+'T12:00:00').toLocaleDateString('pt-BR'):'—'}</td>
+      <td style="font-weight:500;color:var(--brand)">${fmt(o.total||0)}</td>
+      <td style="text-align:center;color:var(--muted)">${(o.items||[]).length}</td>
+    </tr>`).join('');
+}
+
+function renderRecibos(){
+  const search=(document.getElementById('rec-search').value||'').toLowerCase();
+  let recs=getAllRecibos();
+  if(search)recs=recs.filter(r=>(r.num||'').toLowerCase().includes(search)||(r.pagador||r.pagNome||'').toLowerCase().includes(search)||(r.userEmail||'').toLowerCase().includes(search));
+  const tb=document.getElementById('rec-tbody');
+  if(!recs.length){tb.innerHTML=`<tr><td colspan="6"><div class="empty-state"><i class="ti ti-receipt" aria-hidden="true"></i>Nenhum recibo encontrado</div></td></tr>`;return;}
+  tb.innerHTML=recs.map(r=>`
+    <tr>
+      <td><span style="font-weight:500">${r.num||r.rNum||'—'}</span></td>
+      <td><div style="font-size:12px">${r.userName||'—'}</div><div style="font-size:11px;color:var(--muted)">${r.userEmail||''}</div></td>
+      <td>${r.pagador||r.pagNome||'—'}</td>
+      <td style="color:var(--muted);font-size:12px">${r.data?new Date(r.data+'T12:00:00').toLocaleDateString('pt-BR'):'—'}</td>
+      <td style="font-weight:500;color:#534AB7">${fmt(r.total||0)}</td>
+      <td><span class="badge badge-free">${r.forma||r.formaPag||'—'}</span></td>
+    </tr>`).join('');
+}
+
+function salvarCredenciais(){
+  const u=document.getElementById('cfg-user').value.trim();
+  const p=document.getElementById('cfg-pass').value;
+  const p2=document.getElementById('cfg-pass2').value;
+  if(!u){showToast('Informe o login.','ti-alert-circle');return;}
+  if(p&&p.length<6){showToast('Senha mínimo 6 caracteres.','ti-alert-circle');return;}
+  if(p&&p!==p2){showToast('As senhas não coincidem.','ti-alert-circle');return;}
+  const creds=getCreds();
+  localStorage.setItem('orc_admin_creds',JSON.stringify({user:u,pass:p||creds.pass}));
+  document.getElementById('cfg-pass').value='';document.getElementById('cfg-pass2').value='';
+  showToast('Credenciais salvas!');
+}
+
+function gerarDadosFicticios(){
+  if(!confirm('Gerar usuários e orçamentos de exemplo?'))return;
+  const nomes=[['Ana Lima','ana@exemplo.com','pro'],['Carlos Souza','carlos@empresa.com','business'],['Maria Oliveira','maria@gmail.com','free'],['João Santos','joao@servicos.com','pro'],['Patricia Costa','patricia@design.com','free']];
+  const users=getUsers();
+  nomes.forEach(([name,email,plan])=>{
+    if(users.find(u=>u.email===email))return;
+    const id=Date.now()+Math.random();
+    users.push({id,name,email,password:btoa('123456'),plan,status:'active',createdAt:new Date(Date.now()-Math.random()*30*86400000).toISOString()});
+    const orcs=[{id:Date.now(),num:'ORC-001/2026',cliente:'Cliente Exemplo',data:'2026-05-01',total:1500,items:[{id:'i0',desc:'Serviço de instalação',unit:'serv',qty:1,price:1500}],cNome:'Cliente Exemplo',pag:'PIX',val:15,desc:0,acr:0,obs:''}];
+    localStorage.setItem('orc_hist_'+id,JSON.stringify(orcs));
+  });
+  localStorage.setItem('orc_users',JSON.stringify(users));
+  showToast('Dados de exemplo criados!');renderDashboard();
+}
+
+function limparTudo(){
+  if(!confirm('ATENÇÃO: Isso apagará TODOS os usuários e dados. Continuar?'))return;
+  if(!confirm('Tem certeza? Esta ação não pode ser desfeita.'))return;
+  const keys=Object.keys(localStorage).filter(k=>k.startsWith('orc_')&&k!=='orc_admin_creds'&&k!=='orc_admin_session');
+  keys.forEach(k=>localStorage.removeItem(k));
+  showToast('Dados limpos!','ti-trash');renderDashboard();
+}
+
+const sess=JSON.parse(localStorage.getItem('orc_admin_session')||'null');
+if(sess&&sess.expires>Date.now())showApp();
+</script>
+</body>
+</html>
