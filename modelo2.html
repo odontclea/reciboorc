@@ -412,23 +412,71 @@ function carregarLogo(input){
 function removerLogo(){logoData='';document.getElementById('logo-img').style.display='none';document.getElementById('logo-icon').style.display='';try{localStorage.removeItem('orc_logo_m2');}catch(e){}}
 
 /* ---- ITEMS ---- */
-function addItem(desc='',qty=1,price=0){items.push({id:'i'+(itemId++),desc,qty,price});renderItems();}
+function addItem(desc,qty,price){
+  if(desc===undefined)desc='';
+  if(qty===undefined)qty=1;
+  if(price===undefined)price=0;
+  items.push({id:'i'+(itemId++),desc,qty,price});
+  renderItems();
+}
 function removeItem(id){items=items.filter(i=>i.id!==id);renderItems();}
-function updItem(id,f,v){const it=items.find(i=>i.id===id);if(it)it[f]=v;renderItems();}
+
+/* Atualiza dado no array e recalcula so subtotal da linha + totais, SEM re-renderizar a tabela */
+function updItem(id,f,v){
+  const it=items.find(i=>i.id===id);
+  if(!it)return;
+  it[f]=f==='desc'?v:(parseFloat(v)||0);
+  const sub=(it.qty||0)*(it.price||0);
+  const cell=document.getElementById('sub-'+id);
+  if(cell)cell.textContent=fmt(sub);
+  calcTotals();
+}
 
 function renderItems(){
-  const tb=document.getElementById('items-body');tb.innerHTML='';
-  items.forEach(it=>{
+  const tb=document.getElementById('items-body');
+  tb.innerHTML='';
+  items.forEach(function(it){
+    const id=it.id;
     const tr=document.createElement('tr');
-    tr.innerHTML=`
-      <td><input type="text" value="${esc(it.desc)}" placeholder="Descrição do item ou serviço" oninput="updItem('${it.id}','desc',this.value)"></td>
-      <td><input type="number" min="0.01" step="0.01" value="${it.qty}" oninput="updItem('${it.id}','qty',+this.value)" style="text-align:center"></td>
-      <td><input type="number" min="0" step="0.01" value="${it.price}" oninput="updItem('${it.id}','price',+this.value)"></td>
-      <td class="item-sub">${fmt((it.qty||0)*(it.price||0))}</td>
-      <td><button class="btn-remove" onclick="removeItem('${it.id}')" aria-label="Remover"><i class="ti ti-trash" aria-hidden="true"></i></button></td>`;
+
+    // Descricao
+    const td1=document.createElement('td');
+    const inp1=document.createElement('input');
+    inp1.type='text'; inp1.value=it.desc||''; inp1.placeholder='Descricao do item ou servico';
+    inp1.addEventListener('input',function(){updItem(id,'desc',this.value);});
+    td1.appendChild(inp1); tr.appendChild(td1);
+
+    // Quantidade
+    const td2=document.createElement('td');
+    const inp2=document.createElement('input');
+    inp2.type='number'; inp2.min='0.01'; inp2.step='0.01'; inp2.value=it.qty; inp2.style.textAlign='center';
+    inp2.addEventListener('input',function(){updItem(id,'qty',this.value);});
+    td2.appendChild(inp2); tr.appendChild(td2);
+
+    // Valor
+    const td3=document.createElement('td');
+    const inp3=document.createElement('input');
+    inp3.type='number'; inp3.min='0'; inp3.step='0.01'; inp3.value=it.price;
+    inp3.addEventListener('input',function(){updItem(id,'price',this.value);});
+    td3.appendChild(inp3); tr.appendChild(td3);
+
+    // Subtotal
+    const td4=document.createElement('td');
+    td4.className='item-sub'; td4.id='sub-'+id;
+    td4.textContent=fmt((it.qty||0)*(it.price||0));
+    tr.appendChild(td4);
+
+    // Remover
+    const td5=document.createElement('td');
+    const btn=document.createElement('button');
+    btn.className='btn-remove'; btn.setAttribute('aria-label','Remover');
+    btn.innerHTML='<i class="ti ti-trash" aria-hidden="true"></i>';
+    btn.addEventListener('click',function(){removeItem(id);});
+    td5.appendChild(btn); tr.appendChild(td5);
+
     tb.appendChild(tr);
   });
-  applyTheme();calcTotals();
+  applyTheme(); calcTotals();
 }
 
 function calcTotals(){
