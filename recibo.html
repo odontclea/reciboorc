@@ -1,0 +1,589 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Recibo de Pagamento — Orçamentos Express</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;600;700&family=DM+Sans:wght@300;400;500&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@tabler/icons-webfont@3.2.0/tabler-icons.min.css">
+<style>
+*{box-sizing:border-box;margin:0;padding:0}
+:root{--brand:#1a5c3a;--brand2:#0f3d27;--accent:#f0a500;--light:#e8f5ee;--text:#1a1a18;--muted:#6b7280;--border:#e5e7eb;--bg:#f3f4f0;--white:#fff}
+body{font-family:'DM Sans',sans-serif;background:var(--bg);color:var(--text);min-height:100vh}
+
+.topbar{background:var(--brand);padding:0.75rem 1.5rem;display:flex;align-items:center;gap:10px}
+.topbar-logo{display:flex;align-items:center;gap:9px;font-family:'Syne',sans-serif;font-size:16px;font-weight:700;color:#fff;text-decoration:none}
+.topbar-logo-icon{width:32px;height:32px;background:rgba(255,255,255,0.15);border-radius:7px;display:flex;align-items:center;justify-content:center}
+.topbar a.back{display:flex;align-items:center;gap:6px;font-size:13px;color:rgba(255,255,255,0.8);text-decoration:none;margin-left:auto}
+.topbar a.back:hover{color:#fff}
+
+.main{max-width:860px;margin:0 auto;padding:1.75rem 1.25rem 3rem}
+.page-header{display:flex;align-items:flex-start;justify-content:space-between;margin-bottom:1.5rem;flex-wrap:wrap;gap:10px}
+.page-title{font-family:'Syne',sans-serif;font-size:1.4rem;font-weight:700}
+.page-sub{font-size:13px;color:var(--muted);margin-top:2px}
+
+.section{background:var(--white);border:1px solid var(--border);border-radius:12px;padding:1.25rem 1.5rem;margin-bottom:1rem}
+.section-title{font-size:12px;font-weight:600;letter-spacing:.5px;color:var(--muted);text-transform:uppercase;margin-bottom:1rem;display:flex;align-items:center;gap:8px}
+.row{display:grid;grid-template-columns:repeat(auto-fit,minmax(170px,1fr));gap:10px;margin-bottom:10px}
+.field{display:flex;flex-direction:column;gap:4px}
+.field label{font-size:12px;color:var(--muted);font-weight:500}
+.field input,.field select,.field textarea{font-size:13px;padding:8px 10px;border:1px solid var(--border);border-radius:8px;background:var(--white);color:var(--text);width:100%;font-family:'DM Sans',sans-serif;transition:border-color .2s,box-shadow .2s;outline:none}
+.field input:focus,.field select:focus,.field textarea:focus{border-color:var(--brand);box-shadow:0 0 0 2px rgba(26,92,58,0.1)}
+.field textarea{resize:vertical;min-height:60px}
+
+.items-table{width:100%;border-collapse:collapse;table-layout:fixed}
+.items-table th{font-size:11px;font-weight:600;color:var(--muted);text-align:left;padding:6px 7px;border-bottom:1px solid var(--border)}
+.items-table td{padding:4px 7px;vertical-align:middle}
+.items-table td input,.items-table td select{font-size:12px;padding:5px 7px;border:1px solid var(--border);border-radius:6px;background:var(--white);color:var(--text);width:100%;font-family:'DM Sans',sans-serif}
+.items-table td input[type=number]{text-align:right}
+.item-total{font-size:12px;font-weight:600;text-align:right;color:var(--brand)}
+.btn-remove{background:none;border:none;cursor:pointer;color:var(--muted);font-size:14px;padding:4px;border-radius:5px;display:flex}
+.btn-remove:hover{color:#dc2626;background:#fef2f2}
+.btn-add{display:flex;align-items:center;gap:6px;font-size:12px;border:1.5px dashed var(--brand);padding:7px 14px;border-radius:8px;cursor:pointer;margin-top:8px;width:100%;justify-content:center;background:var(--light);color:var(--brand);font-family:'DM Sans',sans-serif;transition:all .2s}
+.btn-add:hover{background:#d4eddc}
+
+.totals-area{border-radius:10px;padding:1rem;margin-top:0.75rem;background:var(--bg)}
+.total-row{display:flex;justify-content:space-between;font-size:13px;padding:3px 0;color:var(--muted)}
+.total-row.grand{font-size:17px;font-weight:700;font-family:'Syne',sans-serif;color:var(--text);border-top:2px solid var(--border);margin-top:8px;padding-top:10px}
+
+.btn{display:inline-flex;align-items:center;gap:6px;padding:9px 18px;border-radius:8px;font-size:13px;font-weight:500;cursor:pointer;border:none;transition:all .2s;font-family:'DM Sans',sans-serif}
+.btn-p{color:#fff;background:var(--brand)}.btn-p:hover{background:var(--brand2)}
+.btn-s{background:var(--white);color:var(--text);border:1px solid var(--border)}.btn-s:hover{background:var(--bg)}
+.actions{display:flex;gap:8px;flex-wrap:wrap;margin-top:1rem}
+
+/* RECIBO PREVIEW */
+.recibo-preview{background:var(--white);border:1px solid var(--border);border-radius:12px;padding:2rem;margin-top:1rem;display:none}
+.recibo-watermark{position:relative}
+.recibo-stamp{position:absolute;top:50%;left:50%;transform:translate(-50%,-50%) rotate(-25deg);font-family:'Syne',sans-serif;font-size:3.5rem;font-weight:700;color:rgba(26,92,58,0.07);white-space:nowrap;pointer-events:none;letter-spacing:4px}
+.recibo-header{display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:1.5rem;position:relative}
+.recibo-title-block .title{font-family:'Syne',sans-serif;font-size:26px;font-weight:700;letter-spacing:-0.5px}
+.recibo-title-block .subtitle{font-size:12px;color:var(--muted);margin-top:2px}
+.recibo-num-badge{background:var(--light);border:1.5px solid;border-radius:8px;padding:8px 16px;text-align:center;flex-shrink:0}
+.recibo-num-badge .label{font-size:10px;font-weight:600;letter-spacing:1px;text-transform:uppercase;display:block;margin-bottom:2px}
+.recibo-num-badge .num{font-family:'Syne',sans-serif;font-size:18px;font-weight:700}
+
+.recibo-parties{display:grid;grid-template-columns:1fr 1fr;gap:1.5rem;margin-bottom:1.5rem;padding:1rem;background:var(--bg);border-radius:10px}
+.party-block strong{font-size:11px;font-weight:600;letter-spacing:.5px;text-transform:uppercase;color:var(--muted);display:block;margin-bottom:6px}
+.party-block p{font-size:13px;line-height:1.7;color:var(--text)}
+
+.recibo-tbl{width:100%;border-collapse:collapse;margin-bottom:1.5rem;table-layout:fixed}
+.recibo-tbl th{font-size:11px;font-weight:600;padding:7px 9px;text-align:left;border-bottom:2px solid}
+.recibo-tbl td{font-size:13px;padding:8px 9px;border-bottom:1px solid var(--border)}
+.recibo-tbl td:last-child{text-align:right;font-weight:600}
+
+.recibo-total-box{background:var(--brand);color:#fff;border-radius:10px;padding:1rem 1.5rem;display:flex;align-items:center;justify-content:space-between;margin-bottom:1.5rem}
+.recibo-total-box .label{font-size:13px;opacity:0.8}
+.recibo-total-box .value{font-family:'Syne',sans-serif;font-size:1.8rem;font-weight:700}
+
+.recibo-payment-info{display:grid;grid-template-columns:repeat(auto-fit,minmax(140px,1fr));gap:1rem;margin-bottom:1.5rem}
+.pay-info-item{background:var(--bg);border-radius:8px;padding:0.75rem 1rem}
+.pay-info-item .label{font-size:11px;color:var(--muted);font-weight:600;text-transform:uppercase;letter-spacing:.5px;display:block;margin-bottom:3px}
+.pay-info-item .value{font-size:13px;font-weight:500;color:var(--text)}
+
+.recibo-assinatura{display:grid;grid-template-columns:1fr 1fr;gap:2rem;margin-top:2rem;padding-top:1.5rem;border-top:1px solid var(--border)}
+.assinatura-linha{border-bottom:1.5px solid var(--text);margin-bottom:6px;height:40px}
+.assinatura-label{font-size:11px;color:var(--muted);text-align:center}
+
+.recibo-obs{margin-top:1rem;padding:0.75rem 1rem;background:var(--bg);border-radius:8px;font-size:12px;color:var(--muted);border-left:3px solid var(--brand)}
+.recibo-obs strong{color:var(--text);display:block;margin-bottom:3px}
+
+.toast{position:fixed;bottom:24px;right:24px;background:#1a1a18;color:#fff;padding:10px 18px;border-radius:10px;font-size:13px;display:flex;align-items:center;gap:8px;z-index:999;transform:translateY(60px);opacity:0;transition:all .3s}
+.toast.show{transform:translateY(0);opacity:1}
+
+.hist-item{background:var(--white);border:1px solid var(--border);border-radius:10px;padding:0.9rem 1.25rem;margin-bottom:8px;display:flex;align-items:center;justify-content:space-between;gap:1rem;flex-wrap:wrap}
+.hist-info p{font-size:13px;font-weight:500;margin-bottom:2px}
+.hist-info span{font-size:12px;color:var(--muted)}
+.hist-total{font-size:15px;font-weight:700;font-family:'Syne',sans-serif;color:var(--brand);flex-shrink:0}
+.empty-state{text-align:center;padding:2.5rem;color:var(--muted)}
+.empty-state i{font-size:36px;display:block;margin-bottom:0.5rem;opacity:0.4}
+
+.tabs{display:flex;gap:2px;margin-bottom:1.5rem;background:var(--bg);border-radius:10px;padding:4px;border:1px solid var(--border)}
+.tab{flex:1;padding:8px;font-size:13px;border:none;background:none;cursor:pointer;border-radius:8px;color:var(--muted);display:flex;align-items:center;justify-content:center;gap:6px;font-family:'DM Sans',sans-serif;transition:all .2s}
+.tab.active{background:var(--white);color:var(--text);font-weight:500;border:1px solid var(--border)}
+
+.page{display:none}.page.active{display:block}
+
+@media(max-width:640px){
+  .recibo-parties,.recibo-assinatura{grid-template-columns:1fr}
+  .recibo-preview{padding:1.25rem}
+  .recibo-stamp{font-size:2rem}
+}
+@media print{
+  .topbar,.actions,.tabs,.section:not(.print-section),.page-header{display:none!important}
+  .recibo-preview{display:block!important;border:none;padding:0;margin:0;border-radius:0}
+  body{background:#fff}
+  .main{padding:0;max-width:100%}
+}
+</style>
+</head>
+<body>
+
+<div class="topbar">
+  <a href="app.html" class="topbar-logo">
+    <div class="topbar-logo-icon" id="tb-logo-wrap">
+      <i class="ti ti-file-invoice" style="color:#fff;font-size:17px"></i>
+    </div>
+    Orçamentos Express
+  </a>
+  <a href="app.html" class="back"><i class="ti ti-arrow-left"></i> Voltar ao app</a>
+</div>
+
+<div class="main">
+  <div class="page-header">
+    <div>
+      <div class="page-title">Recibo de Pagamento</div>
+      <div class="page-sub">Emita recibos profissionais para seus clientes</div>
+    </div>
+    <div style="display:flex;gap:8px;flex-wrap:wrap">
+      <button class="btn btn-s" onclick="limpar()"><i class="ti ti-refresh"></i> Limpar</button>
+      <button class="btn btn-s" onclick="salvarRecibo()"><i class="ti ti-device-floppy"></i> Salvar</button>
+      <button class="btn btn-p" onclick="showPreview()"><i class="ti ti-eye"></i> Visualizar</button>
+    </div>
+  </div>
+
+  <div class="tabs">
+    <button class="tab active" id="tab-novo" onclick="showTab('novo')"><i class="ti ti-file-plus"></i> Novo recibo</button>
+    <button class="tab" id="tab-hist" onclick="showTab('hist')"><i class="ti ti-history"></i> Histórico</button>
+  </div>
+
+  <div class="page active" id="page-novo">
+
+    <div class="section">
+      <div class="section-title"><i class="ti ti-receipt" style="font-size:16px"></i> Identificação do recibo</div>
+      <div class="row">
+        <div class="field"><label>Número do recibo</label><input id="r-num" type="text" value="REC-001/2026"></div>
+        <div class="field"><label>Data do pagamento</label><input id="r-data" type="date"></div>
+        <div class="field"><label>Referência / orçamento nº</label><input id="r-ref" type="text" placeholder="Ex: ORC-001/2026"></div>
+      </div>
+    </div>
+
+    <div class="section">
+      <div class="section-title"><i class="ti ti-building" style="font-size:16px"></i> Quem recebe (Recebedor)</div>
+      <div class="row">
+        <div class="field"><label>Nome / Razão social</label><input id="rec-nome" type="text" placeholder="Sua empresa ou nome" id="rec-nome"></div>
+        <div class="field"><label>CPF / CNPJ</label><input id="rec-doc" type="text" placeholder="00.000.000/0001-00"></div>
+        <div class="field"><label>Telefone</label><input id="rec-tel" type="text" placeholder="(92) 99999-9999"></div>
+      </div>
+      <div class="row">
+        <div class="field"><label>E-mail</label><input id="rec-email" type="text" placeholder="contato@empresa.com"></div>
+        <div class="field" style="grid-column:span 2"><label>Endereço</label><input id="rec-end" type="text" placeholder="Rua, número — Manaus, AM"></div>
+      </div>
+    </div>
+
+    <div class="section">
+      <div class="section-title"><i class="ti ti-user" style="font-size:16px"></i> Quem paga (Pagador)</div>
+      <div class="row">
+        <div class="field"><label>Nome / Razão social</label><input id="pag-nome" type="text" placeholder="Nome do cliente"></div>
+        <div class="field"><label>CPF / CNPJ</label><input id="pag-doc" type="text" placeholder="Opcional"></div>
+        <div class="field"><label>Telefone</label><input id="pag-tel" type="text" placeholder="(92) 99999-0000"></div>
+      </div>
+      <div class="row">
+        <div class="field"><label>E-mail</label><input id="pag-email" type="text" placeholder="cliente@email.com"></div>
+        <div class="field" style="grid-column:span 2"><label>Endereço</label><input id="pag-end" type="text" placeholder="Endereço do pagador"></div>
+      </div>
+    </div>
+
+    <div class="section">
+      <div class="section-title"><i class="ti ti-list" style="font-size:16px"></i> Serviços / Produtos recebidos</div>
+      <div style="overflow-x:auto">
+        <table class="items-table"><thead><tr>
+          <th style="width:44%">Descrição</th>
+          <th style="width:12%">Unid.</th>
+          <th style="width:10%">Qtd</th>
+          <th style="width:16%">Valor unit. (R$)</th>
+          <th style="width:13%;text-align:right">Total</th>
+          <th style="width:5%"></th>
+        </tr></thead><tbody id="items-body"></tbody></table>
+      </div>
+      <button class="btn-add" onclick="addItem()"><i class="ti ti-plus"></i> Adicionar item</button>
+      <div class="totals-area">
+        <div class="total-row"><span>Subtotal</span><span id="subtotal">R$ 0,00</span></div>
+        <div class="total-row grand"><span>Total recebido</span><span id="total" style="color:var(--brand)">R$ 0,00</span></div>
+      </div>
+    </div>
+
+    <div class="section">
+      <div class="section-title"><i class="ti ti-credit-card" style="font-size:16px"></i> Forma de pagamento</div>
+      <div class="row">
+        <div class="field"><label>Forma de pagamento</label>
+          <select id="forma-pag">
+            <option>Dinheiro</option><option>PIX</option><option>Transferência bancária</option>
+            <option>Cartão de débito</option><option>Cartão de crédito</option>
+            <option>Cheque</option><option>Boleto bancário</option><option>Depósito bancário</option><option>Outro</option>
+          </select>
+        </div>
+        <div class="field"><label>Banco / Chave PIX (opcional)</label><input id="chave-pix" type="text" placeholder="Ex: CPF, e-mail, telefone..."></div>
+        <div class="field"><label>Parcelamento (opcional)</label><input id="parcelas" type="text" placeholder="Ex: 2x de R$ 500,00"></div>
+      </div>
+    </div>
+
+    <div class="section">
+      <div class="section-title"><i class="ti ti-note" style="font-size:16px"></i> Observações</div>
+      <div class="field"><textarea id="obs" rows="3" placeholder="Informações adicionais, condições, referências..."></textarea></div>
+    </div>
+
+    <div class="actions">
+      <button class="btn btn-p" onclick="showPreview()"><i class="ti ti-eye"></i> Visualizar recibo</button>
+      <button class="btn btn-s" onclick="salvarRecibo()"><i class="ti ti-device-floppy"></i> Salvar recibo</button>
+      <button class="btn btn-s" onclick="limpar()"><i class="ti ti-refresh"></i> Novo recibo</button>
+    </div>
+
+    <!-- PREVIEW -->
+    <div class="recibo-preview print-section" id="recibo-preview">
+      <div class="recibo-watermark">
+        <div class="recibo-stamp" id="prev-stamp">RECIBO</div>
+
+        <div class="recibo-header">
+          <div style="display:flex;align-items:center;gap:12px">
+            <div id="prev-logo-wrap" style="display:none;width:52px;height:52px;border-radius:8px;overflow:hidden;border:1px solid var(--border)">
+              <img id="prev-logo" src="" style="width:100%;height:100%;object-fit:contain">
+            </div>
+            <div class="recibo-title-block">
+              <div class="title" id="prev-title" style="color:var(--brand)">RECIBO DE PAGAMENTO</div>
+              <div class="subtitle" id="prev-empresa-nome"></div>
+            </div>
+          </div>
+          <div class="recibo-num-badge" id="prev-num-badge" style="border-color:var(--brand);color:var(--brand)">
+            <span class="label">Recibo nº</span>
+            <span class="num" id="prev-num"></span>
+          </div>
+        </div>
+
+        <div class="recibo-parties">
+          <div class="party-block">
+            <strong>Recebedor</strong>
+            <p id="prev-recebedor"></p>
+          </div>
+          <div class="party-block">
+            <strong>Pagador</strong>
+            <p id="prev-pagador"></p>
+          </div>
+        </div>
+
+        <table class="recibo-tbl" id="prev-tbl">
+          <thead><tr id="prev-thead">
+            <th style="width:44%">Descrição</th>
+            <th style="width:12%">Unid.</th>
+            <th style="width:10%">Qtd</th>
+            <th style="width:16%;text-align:right">Val. Unit.</th>
+            <th style="width:18%;text-align:right">Total</th>
+          </tr></thead>
+          <tbody id="prev-items"></tbody>
+        </table>
+
+        <div class="recibo-total-box" id="prev-total-box">
+          <div>
+            <div class="label">Valor total recebido</div>
+            <div style="font-size:12px;opacity:0.65;margin-top:2px" id="prev-total-ext"></div>
+          </div>
+          <div class="value" id="prev-total"></div>
+        </div>
+
+        <div class="recibo-payment-info">
+          <div class="pay-info-item">
+            <span class="label">Data do pagamento</span>
+            <span class="value" id="prev-data"></span>
+          </div>
+          <div class="pay-info-item">
+            <span class="label">Forma de pagamento</span>
+            <span class="value" id="prev-forma"></span>
+          </div>
+          <div class="pay-info-item" id="prev-ref-wrap">
+            <span class="label">Referência</span>
+            <span class="value" id="prev-ref"></span>
+          </div>
+          <div class="pay-info-item" id="prev-pix-wrap">
+            <span class="label">Chave / Banco</span>
+            <span class="value" id="prev-pix"></span>
+          </div>
+        </div>
+
+        <div id="prev-obs-wrap" style="display:none">
+          <div class="recibo-obs">
+            <strong>Observações</strong>
+            <span id="prev-obs"></span>
+          </div>
+        </div>
+
+        <div class="recibo-assinatura">
+          <div>
+            <div class="assinatura-linha"></div>
+            <div class="assinatura-label" id="prev-ass-recebedor">Assinatura do Recebedor</div>
+          </div>
+          <div>
+            <div class="assinatura-linha"></div>
+            <div class="assinatura-label" id="prev-ass-pagador">Assinatura do Pagador</div>
+          </div>
+        </div>
+
+      </div>
+
+      <div style="margin-top:1.5rem;display:flex;gap:8px;flex-wrap:wrap" class="no-print">
+        <button class="btn btn-s" onclick="document.getElementById('recibo-preview').style.display='none'"><i class="ti ti-x"></i> Fechar</button>
+        <button class="btn btn-p" onclick="exportarPDF()"><i class="ti ti-file-type-pdf"></i> Exportar PDF</button>
+        <button class="btn btn-p" onclick="window.print()" style="background:#185FA5"><i class="ti ti-printer"></i> Imprimir</button>
+      </div>
+    </div>
+
+  </div>
+
+  <div class="page" id="page-hist">
+    <div id="hist-list">
+      <div class="empty-state"><i class="ti ti-inbox"></i>Nenhum recibo salvo ainda.<br><small>Crie um recibo e clique em Salvar.</small></div>
+    </div>
+  </div>
+
+</div>
+
+<div class="toast" id="toast"></div>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf-autotable/3.8.2/jspdf.plugin.autotable.min.js"></script>
+<script>
+let items=[];
+let itemId=0;
+let historico=[];
+let logoData='';
+const BRAND='#1a5c3a';
+
+function showTab(name){
+  document.querySelectorAll('.page').forEach(p=>p.classList.remove('active'));
+  document.querySelectorAll('.tab').forEach(t=>t.classList.remove('active'));
+  document.getElementById('page-'+name).classList.add('active');
+  document.getElementById('tab-'+name).classList.add('active');
+}
+
+function showToast(msg,icon='ti-check'){
+  const t=document.getElementById('toast');
+  t.innerHTML=`<i class="ti ${icon}"></i>${msg}`;
+  t.classList.add('show');
+  setTimeout(()=>t.classList.remove('show'),2800);
+}
+
+function fmt(v){return 'R$ '+v.toFixed(2).replace('.',',').replace(/\B(?=(\d{3})+(?!\d))/g,'.')}
+function esc(s){return String(s||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;')}
+
+function numPorExtenso(valor){
+  if(valor===0)return 'zero reais';
+  const u=['','um','dois','três','quatro','cinco','seis','sete','oito','nove','dez','onze','doze','treze','quatorze','quinze','dezesseis','dezessete','dezoito','dezenove'];
+  const d=['','','vinte','trinta','quarenta','cinquenta','sessenta','setenta','oitenta','noventa'];
+  const c=['','cem','duzentos','trezentos','quatrocentos','quinhentos','seiscentos','setecentos','oitocentos','novecentos'];
+  function grupo(n){
+    if(n===100)return 'cem';
+    let s='';const cent=Math.floor(n/100);const rest=n%100;
+    if(cent>0)s+=c[cent];if(rest>0){if(s)s+=' e ';if(rest<20)s+=u[rest];else{s+=d[Math.floor(rest/10)];if(rest%10>0)s+=' e '+u[rest%10];}}
+    return s;
+  }
+  const reais=Math.floor(valor);const centavos=Math.round((valor-reais)*100);
+  let s='';
+  if(reais>=1000){const mil=Math.floor(reais/1000);s+=(mil===1?'mil ':grupo(mil)+' mil ');const rest=reais%1000;if(rest>0)s+='e '+grupo(rest)+' ';}
+  else if(reais>0)s+=grupo(reais)+' ';
+  s+=reais===1?'real':'reais';
+  if(centavos>0){s+=' e '+grupo(centavos)+' '+(centavos===1?'centavo':'centavos');}
+  return s.trim();
+}
+
+function addItem(desc='',unit='un',qty=1,price=0){
+  items.push({id:'i'+(itemId++),desc,unit,qty,price});renderItems();
+}
+function removeItem(id){items=items.filter(i=>i.id!==id);renderItems();}
+function updItem(id,f,v){const it=items.find(i=>i.id===id);if(it)it[f]=v;renderItems();}
+
+function renderItems(){
+  const tb=document.getElementById('items-body');tb.innerHTML='';
+  items.forEach(it=>{
+    const tr=document.createElement('tr');
+    tr.innerHTML=`<td><input type="text" value="${esc(it.desc)}" placeholder="Produto ou serviço" oninput="updItem('${it.id}','desc',this.value)"></td>
+    <td><select onchange="updItem('${it.id}','unit',this.value)">${['un','m²','m³','m','kg','hr','serv','vb','pç','cx','l'].map(u=>`<option${it.unit===u?' selected':''}>${u}</option>`).join('')}</select></td>
+    <td><input type="number" min="0.01" step="0.01" value="${it.qty}" oninput="updItem('${it.id}','qty',+this.value)"></td>
+    <td><input type="number" min="0" step="0.01" value="${it.price}" oninput="updItem('${it.id}','price',+this.value)"></td>
+    <td class="item-total">${fmt((it.qty||0)*(it.price||0))}</td>
+    <td><button class="btn-remove" onclick="removeItem('${it.id}')" aria-label="Remover"><i class="ti ti-trash"></i></button></td>`;
+    tb.appendChild(tr);
+  });calcTotals();
+}
+
+function calcTotals(){
+  const sub=items.reduce((s,i)=>s+(i.qty||0)*(i.price||0),0);
+  document.getElementById('subtotal').textContent=fmt(sub);
+  document.getElementById('total').textContent=fmt(sub);
+}
+
+function showPreview(){
+  if(items.length===0){showToast('Adicione pelo menos um item.','ti-alert-circle');return;}
+  const num=document.getElementById('r-num').value;
+  const data=document.getElementById('r-data').value;
+  const ref=document.getElementById('r-ref').value;
+  const forma=document.getElementById('forma-pag').value;
+  const pix=document.getElementById('chave-pix').value;
+  const dtFmt=data?new Date(data+'T12:00:00').toLocaleDateString('pt-BR'):'—';
+  const total=items.reduce((s,i)=>s+(i.qty||0)*(i.price||0),0);
+
+  document.getElementById('prev-num').textContent=num;
+  document.getElementById('prev-title').style.color=BRAND;
+  document.getElementById('prev-num-badge').style.borderColor=BRAND;
+  document.getElementById('prev-num-badge').style.color=BRAND;
+  document.getElementById('prev-num-badge').style.background='#e8f5ee';
+
+  const enome=document.getElementById('rec-nome').value||'Minha Empresa';
+  document.getElementById('prev-empresa-nome').textContent=enome;
+  document.getElementById('prev-recebedor').innerHTML=[
+    enome,document.getElementById('rec-doc').value,document.getElementById('rec-tel').value,
+    document.getElementById('rec-email').value,document.getElementById('rec-end').value
+  ].filter(Boolean).join('<br>');
+  document.getElementById('prev-pagador').innerHTML=[
+    document.getElementById('pag-nome').value||'—',document.getElementById('pag-doc').value,
+    document.getElementById('pag-tel').value,document.getElementById('pag-email').value,
+    document.getElementById('pag-end').value
+  ].filter(Boolean).join('<br>');
+
+  if(logoData){document.getElementById('prev-logo').src=logoData;document.getElementById('prev-logo-wrap').style.display='block';}
+  else document.getElementById('prev-logo-wrap').style.display='none';
+
+  const tb=document.getElementById('prev-items');tb.innerHTML='';
+  items.forEach(it=>{
+    const tr=document.createElement('tr');
+    tr.innerHTML=`<td>${esc(it.desc)||'—'}</td><td>${it.unit}</td><td>${it.qty}</td><td style="text-align:right">${fmt(it.price)}</td><td>${fmt((it.qty||0)*(it.price||0))}</td>`;
+    tb.appendChild(tr);
+  });
+  document.querySelectorAll('.recibo-tbl th').forEach(th=>{th.style.borderColor=BRAND;th.style.background='#e8f5ee';th.style.color=BRAND;});
+  document.getElementById('prev-total-box').style.background=BRAND;
+  document.getElementById('prev-total').textContent=fmt(total);
+  document.getElementById('prev-total-ext').textContent='('+numPorExtenso(total)+')';
+  document.getElementById('prev-data').textContent=dtFmt;
+  document.getElementById('prev-forma').textContent=forma;
+  const refWrap=document.getElementById('prev-ref-wrap');
+  if(ref){document.getElementById('prev-ref').textContent=ref;refWrap.style.display='block';}else refWrap.style.display='none';
+  const pixWrap=document.getElementById('prev-pix-wrap');
+  if(pix){document.getElementById('prev-pix').textContent=pix;pixWrap.style.display='block';}else pixWrap.style.display='none';
+  const obs=document.getElementById('obs').value;const ow=document.getElementById('prev-obs-wrap');
+  if(obs){document.getElementById('prev-obs').textContent=obs;ow.style.display='block';}else ow.style.display='none';
+  document.getElementById('prev-ass-recebedor').textContent=(document.getElementById('rec-nome').value||'Recebedor');
+  document.getElementById('prev-ass-pagador').textContent=(document.getElementById('pag-nome').value||'Pagador');
+
+  const pr=document.getElementById('recibo-preview');pr.style.display='block';pr.scrollIntoView({behavior:'smooth',block:'start'});
+}
+
+function salvarRecibo(){
+  if(items.length===0){showToast('Adicione itens antes de salvar.','ti-alert-circle');return;}
+  const rec={id:Date.now(),num:document.getElementById('r-num').value,pagador:document.getElementById('pag-nome').value||'—',data:document.getElementById('r-data').value,total:items.reduce((s,i)=>s+(i.qty||0)*(i.price||0),0),forma:document.getElementById('forma-pag').value,
+    items:JSON.parse(JSON.stringify(items)),
+    rNum:document.getElementById('r-num').value,rData:document.getElementById('r-data').value,rRef:document.getElementById('r-ref').value,
+    recNome:document.getElementById('rec-nome').value,recDoc:document.getElementById('rec-doc').value,recTel:document.getElementById('rec-tel').value,recEmail:document.getElementById('rec-email').value,recEnd:document.getElementById('rec-end').value,
+    pagNome:document.getElementById('pag-nome').value,pagDoc:document.getElementById('pag-doc').value,pagTel:document.getElementById('pag-tel').value,pagEmail:document.getElementById('pag-email').value,pagEnd:document.getElementById('pag-end').value,
+    formaPag:document.getElementById('forma-pag').value,chavePix:document.getElementById('chave-pix').value,parcelas:document.getElementById('parcelas').value,obs:document.getElementById('obs').value};
+  historico.unshift(rec);if(historico.length>100)historico=historico.slice(0,100);
+  try{const sess=JSON.parse(localStorage.getItem('orc_session')||'{}');localStorage.setItem('orc_recibos_'+(sess.id||'local'),JSON.stringify(historico));}catch(e){}
+  renderHistorico();showToast('Recibo salvo!');
+}
+
+function renderHistorico(){
+  const el=document.getElementById('hist-list');
+  if(!historico.length){el.innerHTML='<div class="empty-state"><i class="ti ti-inbox"></i>Nenhum recibo salvo.<br><small>Crie um e clique em Salvar.</small></div>';return;}
+  el.innerHTML='';
+  historico.forEach(rec=>{
+    const dt=rec.data?new Date(rec.data+'T12:00:00').toLocaleDateString('pt-BR'):'—';
+    const d=document.createElement('div');d.className='hist-item';
+    d.innerHTML=`<div class="hist-info"><p>Nº ${esc(rec.num)} — ${esc(rec.pagador)}</p><span>${dt} · ${rec.forma||''}</span></div>
+    <div class="hist-total">${fmt(rec.total)}</div>
+    <div style="display:flex;gap:6px;flex-shrink:0">
+      <button class="btn btn-p" onclick="carregarRecibo(${rec.id})" style="font-size:12px;padding:6px 12px"><i class="ti ti-edit"></i> Editar</button>
+      <button class="btn btn-s" onclick="excluirRecibo(${rec.id})" style="font-size:12px;padding:6px 10px"><i class="ti ti-trash"></i></button>
+    </div>`;
+    el.appendChild(d);
+  });
+}
+
+function carregarRecibo(id){
+  const rec=historico.find(r=>r.id===id);if(!rec)return;
+  document.getElementById('r-num').value=rec.rNum||'';document.getElementById('r-data').value=rec.rData||'';document.getElementById('r-ref').value=rec.rRef||'';
+  document.getElementById('rec-nome').value=rec.recNome||'';document.getElementById('rec-doc').value=rec.recDoc||'';document.getElementById('rec-tel').value=rec.recTel||'';document.getElementById('rec-email').value=rec.recEmail||'';document.getElementById('rec-end').value=rec.recEnd||'';
+  document.getElementById('pag-nome').value=rec.pagNome||'';document.getElementById('pag-doc').value=rec.pagDoc||'';document.getElementById('pag-tel').value=rec.pagTel||'';document.getElementById('pag-email').value=rec.pagEmail||'';document.getElementById('pag-end').value=rec.pagEnd||'';
+  document.getElementById('forma-pag').value=rec.formaPag||'Dinheiro';document.getElementById('chave-pix').value=rec.chavePix||'';document.getElementById('parcelas').value=rec.parcelas||'';document.getElementById('obs').value=rec.obs||'';
+  items=JSON.parse(JSON.stringify(rec.items||[]));itemId=items.length+1;renderItems();
+  showTab('novo');document.getElementById('recibo-preview').style.display='none';showToast('Recibo carregado!');
+}
+
+function excluirRecibo(id){
+  if(!confirm('Excluir este recibo?'))return;
+  historico=historico.filter(r=>r.id!==id);
+  try{const sess=JSON.parse(localStorage.getItem('orc_session')||'{}');localStorage.setItem('orc_recibos_'+(sess.id||'local'),JSON.stringify(historico));}catch(e){}
+  renderHistorico();showToast('Excluído.','ti-trash');
+}
+
+function limpar(){
+  if(items.length&&!confirm('Limpar formulário?'))return;
+  items=[];renderItems();
+  ['r-num','r-data','r-ref','rec-nome','rec-doc','rec-tel','rec-email','rec-end','pag-nome','pag-doc','pag-tel','pag-email','pag-end','chave-pix','parcelas','obs'].forEach(id=>{const el=document.getElementById(id);if(el)el.value='';});
+  document.getElementById('r-data').value=new Date().toISOString().split('T')[0];
+  const cnt=historico.length+1;document.getElementById('r-num').value='REC-'+String(cnt).padStart(3,'0')+'/2026';
+  document.getElementById('recibo-preview').style.display='none';addItem();
+}
+
+function exportarPDF(){
+  const{jsPDF}=window.jspdf;if(!jsPDF){alert('Biblioteca não carregou. Use Imprimir.');return;}
+  const num=document.getElementById('r-num').value;const data=document.getElementById('r-data').value;
+  const dtFmt=data?new Date(data+'T12:00:00').toLocaleDateString('pt-BR'):'—';
+  const enome=document.getElementById('rec-nome').value||'Minha Empresa';
+  const pnome=document.getElementById('pag-nome').value||'—';
+  const forma=document.getElementById('forma-pag').value;
+  const total=items.reduce((s,i)=>s+(i.qty||0)*(i.price||0),0);
+  const hex2rgb=h=>[parseInt(h.slice(1,3),16),parseInt(h.slice(3,5),16),parseInt(h.slice(5,7),16)];
+  const[br,bg,bb]=hex2rgb(BRAND);
+  const doc=new jsPDF({unit:'mm',format:'a4'});
+  doc.setFillColor(br,bg,bb);doc.rect(0,0,210,30,'F');
+  doc.setTextColor(255,255,255);doc.setFontSize(18);doc.setFont('helvetica','bold');doc.text('RECIBO DE PAGAMENTO',14,13);
+  doc.setFontSize(9);doc.setFont('helvetica','normal');doc.text('Nº '+num+' · '+dtFmt,14,21);
+  doc.setFontSize(10);doc.setFont('helvetica','bold');doc.text(enome,196,13,{align:'right'});
+  const rdet=[document.getElementById('rec-doc').value,document.getElementById('rec-tel').value].filter(Boolean);
+  doc.setFontSize(8);doc.setFont('helvetica','normal');if(rdet.length)doc.text(rdet.join(' · '),196,21,{align:'right'});
+  doc.setTextColor(40,40,40);let y=40;
+  doc.setFont('helvetica','bold');doc.setFontSize(9);doc.text('RECEBEDOR',14,y);doc.text('PAGADOR',110,y);
+  doc.setFont('helvetica','normal');
+  const rlines=[enome,document.getElementById('rec-doc').value,document.getElementById('rec-tel').value].filter(Boolean);
+  const plines=[pnome,document.getElementById('pag-doc').value,document.getElementById('pag-tel').value].filter(Boolean);
+  rlines.forEach((l,i)=>doc.text(l,14,y+5+(i*4.5)));
+  plines.forEach((l,i)=>doc.text(l,110,y+5+(i*4.5)));
+  y+=Math.max(rlines.length,plines.length)*4.5+12;
+  const tData=items.map(it=>[it.desc||'—',it.unit,String(it.qty),fmt(it.price),fmt((it.qty||0)*(it.price||0))]);
+  doc.autoTable({startY:y,head:[['Descrição','Unid.','Qtd','Val. Unit.','Total']],body:tData,theme:'grid',headStyles:{fillColor:[br,bg,bb],textColor:255,fontSize:8,fontStyle:'bold'},bodyStyles:{fontSize:8},columnStyles:{4:{halign:'right'},3:{halign:'right'},2:{halign:'center'}},margin:{left:14,right:14}});
+  const fy=doc.lastAutoTable.finalY+7;
+  doc.setFillColor(br,bg,bb);doc.rect(14,fy,182,14,'F');
+  doc.setTextColor(255,255,255);doc.setFontSize(12);doc.setFont('helvetica','bold');
+  doc.text('TOTAL RECEBIDO: '+fmt(total),196,fy+8.5,{align:'right'});
+  doc.setFontSize(8);doc.setFont('helvetica','normal');doc.text('('+numPorExtenso(total)+')',14,fy+8.5);
+  let dy=fy+22;
+  doc.setTextColor(40,40,40);doc.setFontSize(8);
+  doc.text('Data: '+dtFmt,14,dy);doc.text('Forma: '+forma,80,dy);
+  const ref=document.getElementById('r-ref').value;if(ref)doc.text('Ref.: '+ref,150,dy);
+  const obs=document.getElementById('obs').value;
+  if(obs){dy+=10;doc.setFont('helvetica','bold');doc.text('Observações:',14,dy);doc.setFont('helvetica','normal');doc.text(doc.splitTextToSize(obs,182),14,dy+5);}
+  const assY=doc.internal.pageSize.height-40;
+  doc.setDrawColor(40,40,40);doc.line(14,assY,90,assY);doc.line(120,assY,196,assY);
+  doc.setFontSize(8);doc.setFont('helvetica','normal');
+  doc.text(enome,52,assY+5,{align:'center'});doc.text(pnome,158,assY+5,{align:'center'});
+  doc.text('Assinatura do Recebedor',52,assY+9,{align:'center'});doc.text('Assinatura do Pagador',158,assY+9,{align:'center'});
+  doc.save('recibo-'+num.replace(/[/\s]/g,'_')+'.pdf');showToast('PDF gerado!');
+}
+
+function carregarDadosEmpresa(){
+  try{
+    const sess=JSON.parse(localStorage.getItem('orc_session')||'{}');
+    const cfg=JSON.parse(localStorage.getItem('orc_cfg_'+(sess.id||''))||'{}');
+    if(cfg.nome){document.getElementById('rec-nome').value=cfg.nome;}
+    if(cfg.doc)document.getElementById('rec-doc').value=cfg.doc;
+    if(cfg.tel)document.getElementById('rec-tel').value=cfg.tel;
+    if(cfg.email)document.getElementById('rec-email').value=cfg.email;
+    if(cfg.end)document.getElementById('rec-end').value=cfg.end;
+    const logo=localStorage.getItem('orc_logo');if(logo){logoData=logo;document.getElementById('prev-logo').src=logo;}
+    const hKey='orc_recibos_'+(sess.id||'local');
+    historico=JSON.parse(localStorage.getItem(hKey)||'[]');renderHistorico();
+  }catch(e){}
+}
+
+document.getElementById('r-data').value=new Date().toISOString().split('T')[0];
+carregarDadosEmpresa();addItem();
+</script>
+</body>
+</html>

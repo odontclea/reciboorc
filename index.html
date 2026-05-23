@@ -1,0 +1,262 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Orçamentos Express — Crie orçamentos profissionais com IA</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;500;600;700&family=DM+Sans:wght@300;400;500&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@tabler/icons-webfont@3.2.0/tabler-icons.min.css">
+<style>
+*{box-sizing:border-box;margin:0;padding:0}
+:root{
+  --brand:#1a5c3a;--brand2:#0f3d27;--accent:#f0a500;--light:#e8f5ee;
+  --text:#1a1a18;--muted:#6b7280;--border:#e5e7eb;--bg:#fafaf8;--white:#ffffff;
+  --radius:12px;--radius-lg:18px;
+}
+body{font-family:'DM Sans',sans-serif;color:var(--text);background:var(--bg);line-height:1.6}
+h1,h2,h3,.display{font-family:'Syne',sans-serif}
+
+nav{display:flex;align-items:center;justify-content:space-between;padding:1rem 2rem;background:var(--white);border-bottom:1px solid var(--border);position:sticky;top:0;z-index:100}
+.nav-logo{display:flex;align-items:center;gap:10px;font-family:'Syne',sans-serif;font-size:18px;font-weight:700;color:var(--brand);text-decoration:none}
+.nav-logo-icon{width:36px;height:36px;background:var(--brand);border-radius:8px;display:flex;align-items:center;justify-content:center}
+.nav-links{display:flex;align-items:center;gap:1.5rem}
+.nav-links a{font-size:14px;color:var(--muted);text-decoration:none;transition:color .2s}
+.nav-links a:hover{color:var(--brand)}
+.btn{display:inline-flex;align-items:center;gap:7px;padding:10px 22px;border-radius:8px;font-size:14px;font-weight:500;cursor:pointer;text-decoration:none;border:none;transition:all .2s;font-family:'DM Sans',sans-serif}
+.btn-primary{background:var(--brand);color:#fff}.btn-primary:hover{background:var(--brand2)}
+.btn-outline{background:transparent;border:1.5px solid var(--brand);color:var(--brand)}.btn-outline:hover{background:var(--light)}
+.btn-accent{background:var(--accent);color:#fff}.btn-accent:hover{background:#d4900a}
+.btn-lg{padding:14px 32px;font-size:16px;border-radius:10px}
+.btn-white{background:#fff;color:var(--brand);font-weight:600}.btn-white:hover{background:var(--light)}
+
+.hero{padding:5rem 2rem 4rem;text-align:center;max-width:860px;margin:0 auto}
+.hero-badge{display:inline-flex;align-items:center;gap:6px;background:var(--light);color:var(--brand);font-size:13px;font-weight:500;padding:5px 14px;border-radius:20px;margin-bottom:1.5rem;border:1px solid #c3e6d4}
+.hero h1{font-size:clamp(2.2rem,5vw,3.4rem);font-weight:700;line-height:1.15;color:var(--text);margin-bottom:1.25rem;letter-spacing:-1px}
+.hero h1 span{color:var(--brand)}
+.hero p{font-size:1.1rem;color:var(--muted);max-width:560px;margin:0 auto 2rem;line-height:1.7}
+.hero-actions{display:flex;gap:12px;justify-content:center;flex-wrap:wrap}
+.hero-stats{display:flex;gap:2rem;justify-content:center;margin-top:3rem;flex-wrap:wrap}
+.stat{text-align:center}
+.stat strong{display:block;font-family:'Syne',sans-serif;font-size:1.8rem;font-weight:700;color:var(--brand)}
+.stat span{font-size:13px;color:var(--muted)}
+
+.section{padding:4rem 2rem;max-width:1080px;margin:0 auto}
+.section-label{font-size:12px;font-weight:600;letter-spacing:1.5px;color:var(--brand);text-transform:uppercase;margin-bottom:0.75rem}
+.section-title{font-size:clamp(1.6rem,3vw,2.2rem);font-weight:700;margin-bottom:1rem;letter-spacing:-0.5px}
+.section-sub{font-size:1rem;color:var(--muted);max-width:520px;margin-bottom:3rem}
+
+.features-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(280px,1fr));gap:1.25rem}
+.feat-card{background:var(--white);border:1px solid var(--border);border-radius:var(--radius-lg);padding:1.75rem;transition:border-color .2s}
+.feat-card:hover{border-color:#9fd6b7}
+.feat-icon{width:44px;height:44px;border-radius:10px;background:var(--light);display:flex;align-items:center;justify-content:center;margin-bottom:1rem;font-size:22px;color:var(--brand)}
+.feat-card h3{font-size:16px;font-weight:600;margin-bottom:0.5rem}
+.feat-card p{font-size:14px;color:var(--muted);line-height:1.6}
+
+.pricing-section{background:var(--brand);padding:5rem 2rem;text-align:center}
+.pricing-section .section-label{color:#9fd6b7}
+.pricing-section .section-title{color:#fff}
+.pricing-section .section-sub{color:rgba(255,255,255,0.7);margin:0 auto 3rem}
+.plans-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(260px,1fr));gap:1.25rem;max-width:920px;margin:0 auto}
+.plan-card{background:rgba(255,255,255,0.07);border:1.5px solid rgba(255,255,255,0.15);border-radius:var(--radius-lg);padding:2rem;text-align:left;transition:all .2s;position:relative}
+.plan-card.featured{background:var(--white);border-color:var(--white)}
+.plan-card.featured .plan-name,.plan-card.featured .plan-desc,.plan-card.featured .plan-feat{color:var(--text) !important}
+.plan-card.featured .plan-price{color:var(--brand) !important}
+.plan-badge{position:absolute;top:-12px;left:50%;transform:translateX(-50%);background:var(--accent);color:#fff;font-size:11px;font-weight:700;padding:3px 14px;border-radius:20px;white-space:nowrap;font-family:'Syne',sans-serif}
+.plan-name{font-family:'Syne',sans-serif;font-size:15px;font-weight:600;color:rgba(255,255,255,0.6);margin-bottom:0.5rem}
+.plan-price{font-family:'Syne',sans-serif;font-size:2.4rem;font-weight:700;color:#fff;line-height:1;margin-bottom:0.25rem}
+.plan-price sup{font-size:1rem;vertical-align:top;margin-top:6px;display:inline-block}
+.plan-price sub{font-size:0.9rem;font-weight:400;color:rgba(255,255,255,0.6)}
+.plan-desc{font-size:13px;color:rgba(255,255,255,0.55);margin-bottom:1.5rem}
+.plan-feats{list-style:none;margin-bottom:1.75rem}
+.plan-feat{display:flex;align-items:center;gap:8px;font-size:13px;color:rgba(255,255,255,0.8);padding:4px 0}
+.plan-feat i{color:#9fd6b7;font-size:15px;flex-shrink:0}
+.plan-card.featured .plan-feat i{color:var(--brand)}
+
+.faq-section{padding:4rem 2rem;max-width:720px;margin:0 auto}
+.faq-item{border-bottom:1px solid var(--border);padding:1.25rem 0}
+.faq-q{font-size:15px;font-weight:500;cursor:pointer;display:flex;justify-content:space-between;align-items:center;gap:1rem;user-select:none}
+.faq-q i{font-size:18px;color:var(--muted);transition:transform .2s;flex-shrink:0}
+.faq-a{font-size:14px;color:var(--muted);margin-top:0.75rem;line-height:1.7;display:none}
+.faq-item.open .faq-a{display:block}
+.faq-item.open .faq-q i{transform:rotate(180deg)}
+
+.cta-section{background:var(--brand2);padding:5rem 2rem;text-align:center}
+.cta-section h2{font-family:'Syne',sans-serif;font-size:clamp(1.8rem,3vw,2.5rem);font-weight:700;color:#fff;margin-bottom:1rem;letter-spacing:-0.5px}
+.cta-section p{color:rgba(255,255,255,0.7);font-size:1rem;margin-bottom:2rem}
+
+footer{background:var(--white);border-top:1px solid var(--border);padding:2rem;text-align:center}
+footer p{font-size:13px;color:var(--muted)}
+footer a{color:var(--brand);text-decoration:none}
+
+@media(max-width:640px){
+  nav{padding:1rem}
+  .nav-links{gap:1rem}
+  .hero{padding:3rem 1.25rem 2.5rem}
+  .section{padding:3rem 1.25rem}
+  .pricing-section,.cta-section,.faq-section{padding:3rem 1.25rem}
+}
+</style>
+</head>
+<body>
+
+<nav>
+  <a href="index.html" class="nav-logo">
+    <div class="nav-logo-icon"><i class="ti ti-file-invoice" style="color:#fff;font-size:18px"></i></div>
+    Orçamentos Express
+  </a>
+  <div class="nav-links">
+    <a href="#recursos">Recursos</a>
+    <a href="#precos">Preços</a>
+    <a href="#faq">FAQ</a>
+    <a href="login.html" class="btn btn-outline" style="padding:8px 18px">Entrar</a>
+    <a href="register.html" class="btn btn-primary" style="padding:8px 18px">Começar grátis</a>
+  </div>
+</nav>
+
+<div class="hero">
+  <div class="hero-badge"><i class="ti ti-sparkles"></i> Powered by Inteligência Artificial</div>
+  <h1>Crie orçamentos <span>profissionais</span><br>em segundos</h1>
+  <p>Gere, salve e envie orçamentos com IA integrada. Exportação em PDF, histórico completo e personalização total da sua marca.</p>
+  <div class="hero-actions">
+    <a href="register.html" class="btn btn-primary btn-lg"><i class="ti ti-rocket"></i> Começar grátis — 7 dias</a>
+    <a href="#precos" class="btn btn-outline btn-lg"><i class="ti ti-tag"></i> Ver planos</a>
+  </div>
+  <div class="hero-stats">
+    <div class="stat"><strong>2.400+</strong><span>Orçamentos gerados</span></div>
+    <div class="stat"><strong>98%</strong><span>Satisfação dos clientes</span></div>
+    <div class="stat"><strong>30s</strong><span>Para criar um orçamento</span></div>
+  </div>
+</div>
+
+<div class="section" id="recursos">
+  <div class="section-label">Recursos</div>
+  <h2 class="section-title">Tudo que você precisa para vender mais</h2>
+  <p class="section-sub">Uma ferramenta completa para profissionais autônomos, pequenas e médias empresas.</p>
+  <div class="features-grid">
+    <div class="feat-card">
+      <div class="feat-icon"><i class="ti ti-sparkles"></i></div>
+      <h3>IA para gerar itens</h3>
+      <p>Descreva o serviço e a IA preenche automaticamente os itens, quantidades e preços de mercado.</p>
+    </div>
+    <div class="feat-card">
+      <div class="feat-icon"><i class="ti ti-file-type-pdf"></i></div>
+      <h3>Exportação em PDF</h3>
+      <p>Gere PDFs profissionais com logo, cores da sua marca e layout elegante prontos para enviar.</p>
+    </div>
+    <div class="feat-card">
+      <div class="feat-icon"><i class="ti ti-history"></i></div>
+      <h3>Histórico completo</h3>
+      <p>Salve, reabra e edite orçamentos anteriores. Nunca perca um documento importante.</p>
+    </div>
+    <div class="feat-card">
+      <div class="feat-icon"><i class="ti ti-palette"></i></div>
+      <h3>Identidade visual</h3>
+      <p>Logo, cores e dados da empresa. Cada orçamento sai com a cara do seu negócio.</p>
+    </div>
+    <div class="feat-card">
+      <div class="feat-icon"><i class="ti ti-calculator"></i></div>
+      <h3>Cálculo automático</h3>
+      <p>Desconto, acréscimo, subtotal e total calculados em tempo real enquanto você digita.</p>
+    </div>
+    <div class="feat-card">
+      <div class="feat-icon"><i class="ti ti-device-mobile"></i></div>
+      <h3>Funciona em qualquer lugar</h3>
+      <p>Acesse do celular, tablet ou computador. Seus orçamentos estão sempre com você.</p>
+    </div>
+  </div>
+</div>
+
+<div class="pricing-section" id="precos">
+  <div class="section-label">Planos e preços</div>
+  <h2 class="section-title" style="color:#fff">Simples, justo e sem surpresas</h2>
+  <p class="section-sub">Comece grátis por 7 dias. Cancele quando quiser.</p>
+  <div class="plans-grid">
+    <div class="plan-card">
+      <div class="plan-name">Gratuito</div>
+      <div class="plan-price"><sup>R$</sup>0<sub>/mês</sub></div>
+      <div class="plan-desc">Para experimentar</div>
+      <ul class="plan-feats">
+        <li class="plan-feat"><i class="ti ti-check"></i>3 orçamentos por mês</li>
+        <li class="plan-feat"><i class="ti ti-check"></i>Exportação PDF básica</li>
+        <li class="plan-feat"><i class="ti ti-check"></i>1 tema de cor</li>
+        <li class="plan-feat"><i class="ti ti-x" style="color:rgba(255,255,255,0.3)!important"></i><span style="opacity:0.4">IA para itens</span></li>
+        <li class="plan-feat"><i class="ti ti-x" style="color:rgba(255,255,255,0.3)!important"></i><span style="opacity:0.4">Logo personalizada</span></li>
+      </ul>
+      <a href="register.html" class="btn btn-outline" style="width:100%;justify-content:center;border-color:rgba(255,255,255,0.3);color:#fff;background:rgba(255,255,255,0.06)">Começar grátis</a>
+    </div>
+    <div class="plan-card featured">
+      <div class="plan-badge">⚡ Mais popular</div>
+      <div class="plan-name">Profissional</div>
+      <div class="plan-price"><sup>R$</sup>39<sub>/mês</sub></div>
+      <div class="plan-desc">Para profissionais e autônomos</div>
+      <ul class="plan-feats">
+        <li class="plan-feat"><i class="ti ti-check"></i>Orçamentos ilimitados</li>
+        <li class="plan-feat"><i class="ti ti-check"></i>PDF profissional com logo</li>
+        <li class="plan-feat"><i class="ti ti-check"></i>6 temas de cores</li>
+        <li class="plan-feat"><i class="ti ti-check"></i>IA para itens e observações</li>
+        <li class="plan-feat"><i class="ti ti-check"></i>Histórico ilimitado</li>
+      </ul>
+      <a href="register.html?plano=pro" class="btn btn-primary" style="width:100%;justify-content:center">Assinar agora</a>
+    </div>
+    <div class="plan-card">
+      <div class="plan-name">Empresarial</div>
+      <div class="plan-price"><sup>R$</sup>89<sub>/mês</sub></div>
+      <div class="plan-desc">Para equipes e empresas</div>
+      <ul class="plan-feats">
+        <li class="plan-feat"><i class="ti ti-check"></i>Tudo do Profissional</li>
+        <li class="plan-feat"><i class="ti ti-check"></i>Até 5 usuários</li>
+        <li class="plan-feat"><i class="ti ti-check"></i>Múltiplas empresas</li>
+        <li class="plan-feat"><i class="ti ti-check"></i>Suporte prioritário</li>
+        <li class="plan-feat"><i class="ti ti-check"></i>Onboarding dedicado</li>
+      </ul>
+      <a href="register.html?plano=business" class="btn btn-outline" style="width:100%;justify-content:center;border-color:rgba(255,255,255,0.3);color:#fff;background:rgba(255,255,255,0.06)">Contratar</a>
+    </div>
+  </div>
+</div>
+
+<div class="faq-section" id="faq">
+  <div style="text-align:center;margin-bottom:2.5rem">
+    <div class="section-label" style="justify-content:center;display:flex">FAQ</div>
+    <h2 class="section-title">Dúvidas frequentes</h2>
+  </div>
+  <div class="faq-item">
+    <div class="faq-q" onclick="toggleFaq(this)">Preciso instalar algum programa? <i class="ti ti-chevron-down"></i></div>
+    <div class="faq-a">Não. O Orçamentos Express roda 100% no navegador, sem instalação. Acesse de qualquer dispositivo com internet.</div>
+  </div>
+  <div class="faq-item">
+    <div class="faq-q" onclick="toggleFaq(this)">Como funciona o período gratuito? <i class="ti ti-chevron-down"></i></div>
+    <div class="faq-a">Você tem 7 dias de acesso completo ao plano Profissional, sem precisar cadastrar cartão. Após o período, você escolhe o plano ideal ou continua no gratuito.</div>
+  </div>
+  <div class="faq-item">
+    <div class="faq-q" onclick="toggleFaq(this)">Posso cancelar quando quiser? <i class="ti ti-chevron-down"></i></div>
+    <div class="faq-a">Sim. Sem fidelidade, sem multa. Cancele a qualquer momento diretamente no seu painel e a cobrança para imediatamente.</div>
+  </div>
+  <div class="faq-item">
+    <div class="faq-q" onclick="toggleFaq(this)">Os orçamentos ficam salvos na nuvem? <i class="ti ti-chevron-down"></i></div>
+    <div class="faq-a">Sim, nos planos pagos os orçamentos ficam salvos na nuvem e acessíveis de qualquer dispositivo. No plano gratuito ficam salvos localmente no navegador.</div>
+  </div>
+  <div class="faq-item">
+    <div class="faq-q" onclick="toggleFaq(this)">A IA é realmente útil? <i class="ti ti-chevron-down"></i></div>
+    <div class="faq-a">Muito! Basta descrever o serviço (ex: "instalação elétrica residencial") e a IA sugere itens, unidades e preços de mercado atualizados. Economiza minutos por orçamento.</div>
+  </div>
+</div>
+
+<div class="cta-section">
+  <h2>Pronto para criar orçamentos profissionais?</h2>
+  <p>Comece grátis hoje. Sem cartão de crédito necessário.</p>
+  <a href="register.html" class="btn btn-white btn-lg"><i class="ti ti-rocket"></i> Criar conta gratuita</a>
+</div>
+
+<footer>
+  <p>© 2026 Orçamentos Express · <a href="#">Termos de uso</a> · <a href="#">Privacidade</a> · Feito com IA no Brasil 🇧🇷</p>
+</footer>
+
+<script>
+function toggleFaq(el){
+  const item=el.closest('.faq-item');
+  item.classList.toggle('open');
+}
+</script>
+</body>
+</html>

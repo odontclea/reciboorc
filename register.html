@@ -1,0 +1,226 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Criar conta — Orçamentos Express</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;600;700&family=DM+Sans:wght@300;400;500&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@tabler/icons-webfont@3.2.0/tabler-icons.min.css">
+<style>
+*{box-sizing:border-box;margin:0;padding:0}
+:root{--brand:#1a5c3a;--brand2:#0f3d27;--accent:#f0a500;--light:#e8f5ee;--text:#1a1a18;--muted:#6b7280;--border:#e5e7eb;--bg:#f3f4f0;--white:#fff;--error:#dc2626}
+body{font-family:'DM Sans',sans-serif;background:var(--bg);color:var(--text);min-height:100vh}
+nav{display:flex;align-items:center;justify-content:space-between;padding:1rem 2rem;background:var(--white);border-bottom:1px solid var(--border)}
+.nav-logo{display:flex;align-items:center;gap:10px;font-family:'Syne',sans-serif;font-size:18px;font-weight:700;color:var(--brand);text-decoration:none}
+.nav-logo-icon{width:34px;height:34px;background:var(--brand);border-radius:8px;display:flex;align-items:center;justify-content:center}
+.page{max-width:960px;margin:0 auto;padding:2.5rem 1.5rem 4rem}
+.steps{display:flex;gap:0;margin-bottom:2.5rem;align-items:center;justify-content:center}
+.step{display:flex;align-items:center;gap:8px;font-size:13px;color:var(--muted)}
+.step-num{width:28px;height:28px;border-radius:50%;border:2px solid var(--border);display:flex;align-items:center;justify-content:center;font-size:12px;font-weight:600;background:var(--white);transition:all .3s}
+.step.active .step-num{background:var(--brand);border-color:var(--brand);color:#fff}
+.step.done .step-num{background:var(--brand);border-color:var(--brand);color:#fff}
+.step.active{color:var(--brand);font-weight:500}
+.step-line{width:48px;height:2px;background:var(--border);margin:0 4px}
+h1{font-family:'Syne',sans-serif;font-size:1.8rem;font-weight:700;margin-bottom:0.4rem;text-align:center}
+.subtitle{color:var(--muted);font-size:14px;text-align:center;margin-bottom:2rem}
+.form-card{background:var(--white);border:1px solid var(--border);border-radius:16px;padding:2.5rem;max-width:480px;margin:0 auto}
+.form-group{margin-bottom:1.1rem}
+.form-group label{display:block;font-size:13px;font-weight:500;margin-bottom:5px;color:#374151}
+.form-group input,.form-group select{width:100%;padding:11px 14px;border:1.5px solid var(--border);border-radius:9px;font-size:14px;font-family:'DM Sans',sans-serif;color:var(--text);background:var(--white);transition:border-color .2s,box-shadow .2s;outline:none}
+.form-group input:focus,.form-group select:focus{border-color:var(--brand);box-shadow:0 0 0 3px rgba(26,92,58,0.1)}
+.form-group input.error{border-color:#dc2626}
+.error-msg{font-size:12px;color:#dc2626;margin-top:4px;display:none}
+.error-msg.show{display:block}
+.input-wrap{position:relative}
+.input-wrap input{padding-right:42px}
+.eye-btn{position:absolute;right:12px;top:50%;transform:translateY(-50%);background:none;border:none;cursor:pointer;color:var(--muted);font-size:16px;display:flex;padding:4px}
+.row2{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+.btn{display:inline-flex;align-items:center;gap:7px;padding:12px 24px;border-radius:9px;font-size:14px;font-weight:500;cursor:pointer;border:none;transition:all .2s;font-family:'DM Sans',sans-serif;width:100%;justify-content:center}
+.btn-primary{background:var(--brand);color:#fff}.btn-primary:hover{background:var(--brand2)}
+.btn-primary:disabled{opacity:0.6;cursor:not-allowed}
+.plans-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:12px;margin-bottom:1.5rem}
+.plan-opt{border:2px solid var(--border);border-radius:12px;padding:1.25rem;cursor:pointer;transition:all .2s;position:relative;background:var(--white)}
+.plan-opt:hover{border-color:#9fd6b7}
+.plan-opt.sel{border-color:var(--brand);background:var(--light)}
+.plan-opt .pop{position:absolute;top:-10px;left:50%;transform:translateX(-50%);background:var(--accent);color:#fff;font-size:10px;font-weight:700;padding:2px 10px;border-radius:20px;white-space:nowrap;font-family:'Syne',sans-serif}
+.plan-opt h3{font-family:'Syne',sans-serif;font-size:14px;font-weight:700;margin-bottom:4px}
+.plan-opt .price{font-size:1.4rem;font-weight:700;font-family:'Syne',sans-serif;color:var(--brand);line-height:1}
+.plan-opt .price sub{font-size:0.7rem;font-weight:400;color:var(--muted)}
+.plan-opt p{font-size:11px;color:var(--muted);margin-top:4px}
+.plan-check{position:absolute;top:8px;right:8px;width:20px;height:20px;border-radius:50%;background:var(--brand);display:none;align-items:center;justify-content:center;color:#fff;font-size:12px}
+.plan-opt.sel .plan-check{display:flex}
+.terms{font-size:12px;color:var(--muted);margin-top:1rem;text-align:center}
+.terms a{color:var(--brand)}
+.login-link{text-align:center;font-size:14px;color:var(--muted);margin-top:1.25rem}
+.login-link a{color:var(--brand);font-weight:500;text-decoration:none}
+.alert{padding:12px 14px;border-radius:9px;font-size:13px;margin-bottom:1.25rem;display:none;align-items:center;gap:8px;background:#fef2f2;border:1px solid #fecaca;color:#991b1b}
+.alert.show{display:flex}
+.spinner{width:18px;height:18px;border:2px solid rgba(255,255,255,0.3);border-top-color:#fff;border-radius:50%;animation:spin .7s linear infinite}
+@keyframes spin{to{transform:rotate(360deg)}}
+.success-screen{text-align:center;padding:2rem 1rem;display:none}
+.success-icon{width:72px;height:72px;background:var(--light);border-radius:50%;display:flex;align-items:center;justify-content:center;margin:0 auto 1.25rem;font-size:32px;color:var(--brand)}
+@media(max-width:580px){.plans-grid{grid-template-columns:1fr}.row2{grid-template-columns:1fr}.form-card{padding:1.5rem}}
+</style>
+</head>
+<body>
+<nav>
+  <a href="index.html" class="nav-logo">
+    <div class="nav-logo-icon"><i class="ti ti-file-invoice" style="color:#fff;font-size:17px"></i></div>
+    Orçamentos Express
+  </a>
+  <a href="login.html" style="font-size:14px;color:var(--muted);text-decoration:none">Já tenho conta →</a>
+</nav>
+
+<div class="page">
+  <div class="steps">
+    <div class="step active" id="step1"><div class="step-num">1</div><span>Seus dados</span></div>
+    <div class="step-line"></div>
+    <div class="step" id="step2"><div class="step-num">2</div><span>Plano</span></div>
+    <div class="step-line"></div>
+    <div class="step" id="step3"><div class="step-num">3</div><span>Pronto!</span></div>
+  </div>
+
+  <div id="form-step1">
+    <h1>Criar conta gratuita</h1>
+    <p class="subtitle">7 dias grátis no plano Profissional. Sem cartão de crédito.</p>
+    <div class="form-card">
+      <div class="alert" id="alert1"></div>
+      <div class="row2">
+        <div class="form-group"><label>Nome</label><input id="r-nome" type="text" placeholder="Seu nome" autocomplete="given-name"></div>
+        <div class="form-group"><label>Sobrenome</label><input id="r-sobrenome" type="text" placeholder="Sobrenome" autocomplete="family-name"></div>
+      </div>
+      <div class="form-group"><label>E-mail</label><input id="r-email" type="email" placeholder="seu@email.com" autocomplete="email"><div class="error-msg" id="err-email">E-mail inválido.</div></div>
+      <div class="form-group"><label>Telefone (opcional)</label><input id="r-tel" type="tel" placeholder="(92) 99999-9999" autocomplete="tel"></div>
+      <div class="form-group"><label>Senha</label>
+        <div class="input-wrap"><input id="r-pass" type="password" placeholder="Mínimo 6 caracteres" autocomplete="new-password"><button type="button" class="eye-btn" onclick="togglePass('r-pass','eye1')" aria-label="Ver senha"><i class="ti ti-eye" id="eye1"></i></button></div>
+        <div class="error-msg" id="err-pass">Mínimo 6 caracteres.</div>
+      </div>
+      <div class="form-group"><label>Confirmar senha</label>
+        <div class="input-wrap"><input id="r-pass2" type="password" placeholder="Repita a senha" autocomplete="new-password"><button type="button" class="eye-btn" onclick="togglePass('r-pass2','eye2')" aria-label="Ver senha"><i class="ti ti-eye" id="eye2"></i></button></div>
+        <div class="error-msg" id="err-pass2">As senhas não coincidem.</div>
+      </div>
+      <button class="btn btn-primary" onclick="goStep2()"><span id="btn-s1-text">Continuar</span></button>
+      <div class="login-link" style="margin-top:1rem">Já tem conta? <a href="login.html">Entrar</a></div>
+    </div>
+  </div>
+
+  <div id="form-step2" style="display:none">
+    <h1>Escolha seu plano</h1>
+    <p class="subtitle">7 dias grátis em qualquer plano pago. Cancele quando quiser.</p>
+    <div class="form-card" style="max-width:600px">
+      <div class="plans-grid" id="plans-grid">
+        <div class="plan-opt sel" data-plan="free" onclick="selectPlan(this)">
+          <div class="plan-check"><i class="ti ti-check"></i></div>
+          <h3>Gratuito</h3>
+          <div class="price">R$0<sub>/mês</sub></div>
+          <p>3 orçamentos/mês</p>
+        </div>
+        <div class="plan-opt" data-plan="pro" onclick="selectPlan(this)">
+          <div class="pop">⚡ Popular</div>
+          <div class="plan-check"><i class="ti ti-check"></i></div>
+          <h3>Profissional</h3>
+          <div class="price">R$39<sub>/mês</sub></div>
+          <p>Ilimitado + IA + PDF</p>
+        </div>
+        <div class="plan-opt" data-plan="business" onclick="selectPlan(this)">
+          <div class="plan-check"><i class="ti ti-check"></i></div>
+          <h3>Empresarial</h3>
+          <div class="price">R$89<sub>/mês</sub></div>
+          <p>5 usuários + suporte</p>
+        </div>
+      </div>
+      <div id="trial-note" style="background:#f0fdf4;border:1px solid #bbf7d0;border-radius:8px;padding:10px 14px;font-size:13px;color:#166534;display:flex;align-items:center;gap:8px;margin-bottom:1.25rem">
+        <i class="ti ti-gift" style="font-size:16px"></i><span id="trial-text">Plano gratuito ativo. Upgrade disponível no painel.</span>
+      </div>
+      <button class="btn btn-primary" onclick="finalizarCadastro()" id="btn-finish"><span id="btn-finish-text">Criar conta</span></button>
+      <div class="terms">Ao criar a conta você concorda com os <a href="#">Termos de Uso</a> e <a href="#">Política de Privacidade</a>.</div>
+    </div>
+  </div>
+
+  <div id="form-step3" style="display:none">
+    <div class="form-card" style="max-width:480px">
+      <div style="text-align:center;padding:1rem 0">
+        <div style="width:72px;height:72px;background:var(--light);border-radius:50%;display:flex;align-items:center;justify-content:center;margin:0 auto 1.25rem;font-size:32px;color:var(--brand)"><i class="ti ti-circle-check"></i></div>
+        <h1 style="font-size:1.5rem;margin-bottom:0.5rem">Conta criada!</h1>
+        <p style="color:var(--muted);font-size:14px;margin-bottom:2rem">Bem-vindo ao Orçamentos Express. Vamos criar seu primeiro orçamento!</p>
+        <a href="app.html" class="btn btn-primary" style="justify-content:center;max-width:280px;margin:0 auto"><i class="ti ti-rocket"></i> Acessar o app</a>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script>
+let regData={};
+const urlPlan=new URLSearchParams(location.search).get('plano');
+if(urlPlan){
+  document.querySelectorAll('.plan-opt').forEach(el=>{
+    el.classList.toggle('sel',el.dataset.plan===urlPlan);
+  });
+}
+
+function togglePass(id,ico){
+  const el=document.getElementById(id);const ic=document.getElementById(ico);
+  if(el.type==='password'){el.type='text';ic.className='ti ti-eye-off';}else{el.type='password';ic.className='ti ti-eye';}
+}
+
+function selectPlan(el){
+  document.querySelectorAll('.plan-opt').forEach(e=>e.classList.remove('sel'));
+  el.classList.add('sel');
+  const plan=el.dataset.plan;
+  const note=document.getElementById('trial-note');
+  const txt=document.getElementById('trial-text');
+  if(plan==='free'){txt.textContent='Plano gratuito ativo. Upgrade disponível a qualquer momento.';note.style.background='#f0fdf4';}
+  else if(plan==='pro'){txt.textContent='7 dias grátis no Profissional. Cobrança só após o período trial.';note.style.background='#fffbeb';}
+  else{txt.textContent='7 dias grátis no Empresarial. Cobrança só após o período trial.';note.style.background='#fffbeb';}
+}
+
+function goStep2(){
+  const nome=document.getElementById('r-nome').value.trim();
+  const email=document.getElementById('r-email').value.trim();
+  const pass=document.getElementById('r-pass').value;
+  const pass2=document.getElementById('r-pass2').value;
+  let ok=true;
+  document.getElementById('err-email').classList.remove('show');
+  document.getElementById('err-pass').classList.remove('show');
+  document.getElementById('err-pass2').classList.remove('show');
+  if(!nome){document.getElementById('r-nome').classList.add('error');ok=false;}
+  if(!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)){document.getElementById('err-email').classList.add('show');ok=false;}
+  if(pass.length<6){document.getElementById('err-pass').classList.add('show');ok=false;}
+  if(pass!==pass2){document.getElementById('err-pass2').classList.add('show');ok=false;}
+  const users=JSON.parse(localStorage.getItem('orc_users')||'[]');
+  if(users.find(u=>u.email===email)){
+    const al=document.getElementById('alert1');al.className='alert show';al.innerHTML='<i class="ti ti-alert-circle"></i> Este e-mail já está cadastrado. <a href="login.html" style="color:#991b1b;margin-left:4px">Entrar →</a>';ok=false;
+  }
+  if(!ok)return;
+  regData={nome:nome+' '+(document.getElementById('r-sobrenome').value.trim()),email,tel:document.getElementById('r-tel').value,pass};
+  document.getElementById('form-step1').style.display='none';
+  document.getElementById('form-step2').style.display='block';
+  document.getElementById('step1').classList.add('done');document.getElementById('step1').classList.remove('active');
+  document.getElementById('step2').classList.add('active');
+}
+
+function finalizarCadastro(){
+  const planEl=document.querySelector('.plan-opt.sel');
+  const plan=planEl?planEl.dataset.plan:'free';
+  const btn=document.getElementById('btn-finish');
+  btn.disabled=true;
+  document.getElementById('btn-finish-text').innerHTML='<div class="spinner"></div>';
+  setTimeout(()=>{
+    const users=JSON.parse(localStorage.getItem('orc_users')||'[]');
+    const newUser={id:Date.now(),name:regData.nome,email:regData.email,tel:regData.tel,password:btoa(regData.pass),plan,trialEnd:Date.now()+86400000*7,createdAt:new Date().toISOString()};
+    users.push(newUser);
+    localStorage.setItem('orc_users',JSON.stringify(users));
+    localStorage.setItem('orc_session',JSON.stringify({id:newUser.id,name:newUser.name,email:newUser.email,plan,expires:Date.now()+86400000*30}));
+    document.getElementById('form-step2').style.display='none';
+    document.getElementById('form-step3').style.display='block';
+    document.getElementById('step2').classList.add('done');document.getElementById('step2').classList.remove('active');
+    document.getElementById('step3').classList.add('active');
+  },1200);
+}
+
+const sess=JSON.parse(localStorage.getItem('orc_session')||'null');
+if(sess&&sess.expires>Date.now())window.location.href='app.html';
+</script>
+</body>
+</html>
