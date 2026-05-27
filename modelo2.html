@@ -169,7 +169,15 @@ body{font-family:'DM Sans',sans-serif;background:var(--bg);color:var(--text);min
 
     <!-- EMPRESA -->
     <div class="section">
-      <div class="section-title"><i class="ti ti-building" style="font-size:16px" aria-hidden="true"></i> Sua empresa</div>
+      <div class="section-title">
+        <i class="ti ti-building" style="font-size:16px" aria-hidden="true"></i> Sua empresa
+        <span id="empresa-saved-badge" style="display:none;background:#f0fdf4;color:#166534;border:1px solid #bbf7d0;font-size:11px;padding:2px 9px;border-radius:20px;font-weight:500;margin-left:4px"><i class="ti ti-check" aria-hidden="true"></i> Dados salvos</span>
+        <button onclick="abrirModalEmpresa()" style="margin-left:auto;display:flex;align-items:center;gap:5px;font-size:12px;background:#e8f5ee;color:#1a5c3a;border:1px solid #9fd6b7;padding:5px 12px;border-radius:7px;cursor:pointer;font-family:inherit"><i class="ti ti-edit" aria-hidden="true"></i> Editar empresa</button>
+      </div>
+      <div id="empresa-resumo" style="background:#f3f4f0;border-radius:8px;padding:10px 14px;font-size:13px;display:none">
+        <div style="font-weight:500;margin-bottom:2px" id="resumo-nome"></div>
+        <div style="color:#6b7280;font-size:12px" id="resumo-det"></div>
+      </div>
       <div class="logo-area">
         <div class="logo-box" id="logo-box" onclick="document.getElementById('logo-input').click()" title="Clique para carregar logo">
           <i class="ti ti-photo" id="logo-icon" aria-hidden="true"></i>
@@ -182,14 +190,17 @@ body{font-family:'DM Sans',sans-serif;background:var(--bg);color:var(--text);min
           <p style="font-size:11px;color:var(--muted);margin-top:5px">PNG, JPG ou SVG</p>
         </div>
       </div>
+      <div id="empresa-campos">
       <div class="row">
-        <div class="field"><label>Nome / Razão social</label><input id="e-nome" type="text" placeholder="Sua empresa" oninput="updateTopbar()"></div>
-        <div class="field"><label>CPF / CNPJ</label><input id="e-doc" type="text" placeholder="00.000.000/0001-00"></div>
-        <div class="field"><label>Telefone / WhatsApp</label><input id="e-wpp" type="text" placeholder="(86) 99999-0000"></div>
+        <div class="field"><label>Nome / Razão social</label><input id="e-nome" type="text" placeholder="Sua empresa" oninput="updateTopbar()" onblur="autoSalvarEmpresa()"></div>
+        <div class="field"><label>CPF / CNPJ</label><input id="e-doc" type="text" placeholder="00.000.000/0001-00" onblur="autoSalvarEmpresa()"></div>
+        <div class="field"><label>Telefone / WhatsApp</label><input id="e-wpp" type="text" placeholder="(86) 99999-0000" onblur="autoSalvarEmpresa()"></div>
       </div>
       <div class="row">
-        <div class="field" style="grid-column:span 2"><label>Endereço completo</label><input id="e-end" type="text" placeholder="Rua, nº, Bairro — Cidade/UF — CEP"></div>
-        <div class="field"><label>Cargo / Função</label><input id="e-cargo" type="text" placeholder="Proprietário"></div>
+        <div class="field" style="grid-column:span 2"><label>Endereço completo</label><input id="e-end" type="text" placeholder="Rua, nº, Bairro — Cidade/UF — CEP" onblur="autoSalvarEmpresa()"></div>
+        <div class="field"><label>Cargo / Função</label><input id="e-cargo" type="text" placeholder="Proprietário" onblur="autoSalvarEmpresa()"></div>
+      </div>
+      <button onclick="salvarEmpresaManual()" style="display:flex;align-items:center;gap:6px;font-size:12px;background:#1a5c3a;color:#fff;border:none;padding:7px 16px;border-radius:7px;cursor:pointer;font-family:inherit;margin-top:4px"><i class="ti ti-device-floppy" aria-hidden="true"></i> Salvar dados da empresa</button>
       </div>
     </div>
 
@@ -368,6 +379,67 @@ body{font-family:'DM Sans',sans-serif;background:var(--bg);color:var(--text);min
 </div><!-- /main -->
 
 <div class="toast" id="toast"></div>
+
+<!-- MODAL EDITAR EMPRESA -->
+<div id="modal-empresa" style="position:fixed;inset:0;background:rgba(0,0,0,0.45);z-index:300;display:none;align-items:center;justify-content:center;padding:1rem">
+  <div style="background:#fff;border-radius:16px;padding:1.75rem;max-width:540px;width:100%;max-height:90vh;overflow-y:auto">
+    <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:1.25rem">
+      <div>
+        <h3 style="font-family:'Syne',sans-serif;font-size:1.1rem;font-weight:700">Dados da empresa</h3>
+        <p style="font-size:13px;color:#6b7280;margin-top:2px">Ficam salvos automaticamente para os próximos orçamentos</p>
+      </div>
+      <button onclick="fecharModalEmpresa()" style="background:none;border:none;cursor:pointer;font-size:20px;color:#6b7280;padding:4px"><i class="ti ti-x" aria-hidden="true"></i></button>
+    </div>
+
+    <div style="display:flex;align-items:center;gap:14px;margin-bottom:1.25rem;padding:1rem;background:#f3f4f0;border-radius:10px">
+      <div id="modal-logo-box" onclick="document.getElementById('modal-logo-input').click()" style="width:72px;height:72px;border-radius:10px;border:1.5px dashed #e5e7eb;display:flex;align-items:center;justify-content:center;overflow:hidden;background:#fff;cursor:pointer;flex-shrink:0">
+        <i class="ti ti-photo" id="modal-logo-icon" aria-hidden="true" style="font-size:24px;color:#9ca3af"></i>
+        <img id="modal-logo-preview" src="" style="display:none;width:100%;height:100%;object-fit:contain">
+      </div>
+      <div>
+        <button onclick="document.getElementById('modal-logo-input').click()" style="display:flex;align-items:center;gap:5px;font-size:12px;background:#fff;border:1px solid #e5e7eb;padding:6px 12px;border-radius:7px;cursor:pointer;font-family:inherit;margin-bottom:6px"><i class="ti ti-upload" aria-hidden="true"></i> Carregar logo</button>
+        <input type="file" id="modal-logo-input" accept="image/*" style="display:none" onchange="carregarLogoModal(this)">
+        <button onclick="removerLogoModal()" style="display:flex;align-items:center;gap:5px;font-size:12px;background:#fff;border:1px solid #fecaca;color:#dc2626;padding:6px 12px;border-radius:7px;cursor:pointer;font-family:inherit"><i class="ti ti-trash" aria-hidden="true"></i> Remover logo</button>
+        <p style="font-size:11px;color:#9ca3af;margin-top:5px">PNG, JPG ou SVG</p>
+      </div>
+    </div>
+
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:10px">
+      <div style="display:flex;flex-direction:column;gap:4px;grid-column:span 2">
+        <label style="font-size:12px;color:#6b7280;font-weight:500">Nome / Razão social</label>
+        <input id="m-nome" type="text" placeholder="Sua empresa" style="font-size:13px;padding:8px 10px;border:1px solid #e5e7eb;border-radius:8px;font-family:inherit">
+      </div>
+      <div style="display:flex;flex-direction:column;gap:4px">
+        <label style="font-size:12px;color:#6b7280;font-weight:500">CPF / CNPJ</label>
+        <input id="m-doc" type="text" placeholder="00.000.000/0001-00" style="font-size:13px;padding:8px 10px;border:1px solid #e5e7eb;border-radius:8px;font-family:inherit">
+      </div>
+      <div style="display:flex;flex-direction:column;gap:4px">
+        <label style="font-size:12px;color:#6b7280;font-weight:500">Telefone / WhatsApp</label>
+        <input id="m-wpp" type="text" placeholder="(86) 99999-0000" style="font-size:13px;padding:8px 10px;border:1px solid #e5e7eb;border-radius:8px;font-family:inherit">
+      </div>
+      <div style="display:flex;flex-direction:column;gap:4px;grid-column:span 2">
+        <label style="font-size:12px;color:#6b7280;font-weight:500">Endereço completo</label>
+        <input id="m-end" type="text" placeholder="Rua, nº, Bairro — Cidade/UF — CEP" style="font-size:13px;padding:8px 10px;border:1px solid #e5e7eb;border-radius:8px;font-family:inherit">
+      </div>
+      <div style="display:flex;flex-direction:column;gap:4px">
+        <label style="font-size:12px;color:#6b7280;font-weight:500">Cargo / Função</label>
+        <input id="m-cargo" type="text" placeholder="Proprietário" style="font-size:13px;padding:8px 10px;border:1px solid #e5e7eb;border-radius:8px;font-family:inherit">
+      </div>
+      <div style="display:flex;flex-direction:column;gap:4px">
+        <label style="font-size:12px;color:#6b7280;font-weight:500">E-mail</label>
+        <input id="m-email" type="email" placeholder="contato@empresa.com" style="font-size:13px;padding:8px 10px;border:1px solid #e5e7eb;border-radius:8px;font-family:inherit">
+      </div>
+      <div style="display:flex;flex-direction:column;gap:4px">
+        <label style="font-size:12px;color:#6b7280;font-weight:500">Site (opcional)</label>
+        <input id="m-site" type="text" placeholder="www.empresa.com.br" style="font-size:13px;padding:8px 10px;border:1px solid #e5e7eb;border-radius:8px;font-family:inherit">
+      </div>
+    </div>
+    <div style="display:flex;gap:8px;justify-content:flex-end;margin-top:1rem">
+      <button onclick="fecharModalEmpresa()" style="padding:9px 18px;border-radius:8px;border:1px solid #e5e7eb;background:#fff;cursor:pointer;font-size:13px;font-family:inherit">Cancelar</button>
+      <button onclick="salvarModal()" style="padding:9px 18px;border-radius:8px;border:none;background:#1a5c3a;color:#fff;cursor:pointer;font-size:13px;font-weight:500;font-family:inherit;display:flex;align-items:center;gap:6px"><i class="ti ti-device-floppy" aria-hidden="true"></i> Salvar dados</button>
+    </div>
+  </div>
+</div>
 
 <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf-autotable/3.8.2/jspdf.plugin.autotable.min.js"></script>
@@ -612,14 +684,20 @@ function excluirProp(id){
 }
 
 function limpar(){
-  if(items.length&&!confirm('Limpar formulário?'))return;
+  if(items.length&&!confirm('Limpar formulário e iniciar nova proposta?'))return;
   items=[];renderItems();
-  ['e-nome','e-doc','e-wpp','e-end','e-cargo','c-nome','c-doc','c-end','c-cidade','c-cep','c-wpp','c-equip','obs','ass-local','ass-data'].forEach(id=>{const el=document.getElementById(id);if(el)el.value='';});
+  // Limpa apenas campos do CLIENTE e da proposta — dados da empresa ficam preservados
+  ['c-nome','c-doc','c-end','c-cidade','c-cep','c-wpp','c-equip','obs','ass-local','ass-data'].forEach(function(id){
+    var el=document.getElementById(id);if(el)el.value='';
+  });
   document.getElementById('c-uf').value='';
   document.getElementById('p-num').value='PROP-'+String(historico.length+1).padStart(3,'0')+'/2026';
   document.getElementById('p-data').value=new Date().toISOString().split('T')[0];
+  document.getElementById('ass-data').value=new Date().toISOString().split('T')[0];
   document.getElementById('abatimento').value=0;calcTotals();
-  document.getElementById('preview-box').style.display='none';addItem();
+  document.getElementById('preview-box').style.display='none';
+  addItem();
+  showToast('Nova proposta iniciada. Dados da empresa mantidos.');
 }
 
 /* ---- WHATSAPP ---- */
@@ -720,21 +798,172 @@ async function gerarComIA(){
 }
 
 /* ---- INIT ---- */
+/* ---- EMPRESA GRAVADA ---- */
+function getEmpresaKey(){
+  try{const s=JSON.parse(localStorage.getItem('orc_session')||'{}');return'orc_empresa_m2_'+(s.id||'local');}catch(e){return'orc_empresa_m2_local';}
+}
+
+function getEmpresaData(){
+  try{return JSON.parse(localStorage.getItem(getEmpresaKey())||'null');}catch(e){return null;}
+}
+
+function salvarEmpresaData(dados){
+  try{localStorage.setItem(getEmpresaKey(),JSON.stringify(dados));}catch(e){}
+}
+
+function aplicarEmpresaNoCampos(d){
+  if(!d)return;
+  const map={nome:'e-nome',doc:'e-doc',wpp:'e-wpp',end:'e-end',cargo:'e-cargo'};
+  Object.entries(map).forEach(function(pair){
+    var el=document.getElementById(pair[1]);
+    if(el&&d[pair[0]])el.value=d[pair[0]];
+  });
+  updateTopbar();
+}
+
+function atualizarResumoEmpresa(){
+  var nome=document.getElementById('e-nome').value;
+  var doc=document.getElementById('e-doc').value;
+  var wpp=document.getElementById('e-wpp').value;
+  var end=document.getElementById('e-end').value;
+  if(nome){
+    document.getElementById('resumo-nome').textContent=nome+(document.getElementById('e-cargo').value?' — '+document.getElementById('e-cargo').value:'');
+    var det=[doc,wpp,end].filter(Boolean).join(' · ');
+    document.getElementById('resumo-det').textContent=det;
+    document.getElementById('empresa-resumo').style.display='block';
+    document.getElementById('empresa-campos').style.display='none';
+    document.getElementById('empresa-saved-badge').style.display='inline-flex';
+  }
+}
+
+function autoSalvarEmpresa(){
+  var nome=document.getElementById('e-nome').value.trim();
+  if(!nome)return;
+  var dados={
+    nome:nome,
+    doc:document.getElementById('e-doc').value,
+    wpp:document.getElementById('e-wpp').value,
+    end:document.getElementById('e-end').value,
+    cargo:document.getElementById('e-cargo').value,
+    email:'',site:'',logo:logoData
+  };
+  salvarEmpresaData(dados);
+  atualizarResumoEmpresa();
+}
+
+function salvarEmpresaManual(){
+  var nome=document.getElementById('e-nome').value.trim();
+  if(!nome){showToast('Informe o nome da empresa.','ti-alert-circle');return;}
+  autoSalvarEmpresa();
+  showToast('Dados da empresa salvos!');
+}
+
+/* ---- MODAL EMPRESA ---- */
+function abrirModalEmpresa(){
+  var d=getEmpresaData()||{};
+  document.getElementById('m-nome').value=d.nome||document.getElementById('e-nome').value||'';
+  document.getElementById('m-doc').value=d.doc||document.getElementById('e-doc').value||'';
+  document.getElementById('m-wpp').value=d.wpp||document.getElementById('e-wpp').value||'';
+  document.getElementById('m-end').value=d.end||document.getElementById('e-end').value||'';
+  document.getElementById('m-cargo').value=d.cargo||document.getElementById('e-cargo').value||'';
+  document.getElementById('m-email').value=d.email||'';
+  document.getElementById('m-site').value=d.site||'';
+  if(logoData){
+    document.getElementById('modal-logo-preview').src=logoData;
+    document.getElementById('modal-logo-preview').style.display='block';
+    document.getElementById('modal-logo-icon').style.display='none';
+  }else{
+    document.getElementById('modal-logo-preview').style.display='none';
+    document.getElementById('modal-logo-icon').style.display='';
+  }
+  document.getElementById('modal-empresa').style.display='flex';
+  document.getElementById('empresa-campos').style.display='block';
+}
+
+function fecharModalEmpresa(){
+  document.getElementById('modal-empresa').style.display='none';
+}
+
+function carregarLogoModal(input){
+  var file=input.files[0];if(!file)return;
+  var reader=new FileReader();
+  reader.onload=function(e){
+    logoData=e.target.result;
+    document.getElementById('modal-logo-preview').src=logoData;
+    document.getElementById('modal-logo-preview').style.display='block';
+    document.getElementById('modal-logo-icon').style.display='none';
+    document.getElementById('logo-img').src=logoData;
+    document.getElementById('logo-img').style.display='block';
+    document.getElementById('logo-icon').style.display='none';
+    try{localStorage.setItem('orc_logo_m2',logoData);}catch(e){}
+  };
+  reader.readAsDataURL(file);
+}
+
+function removerLogoModal(){
+  logoData='';
+  document.getElementById('modal-logo-preview').style.display='none';
+  document.getElementById('modal-logo-icon').style.display='';
+  document.getElementById('logo-img').style.display='none';
+  document.getElementById('logo-icon').style.display='';
+  try{localStorage.removeItem('orc_logo_m2');}catch(e){}
+}
+
+function salvarModal(){
+  var nome=document.getElementById('m-nome').value.trim();
+  if(!nome){showToast('Informe o nome da empresa.','ti-alert-circle');return;}
+  var dados={
+    nome:nome,
+    doc:document.getElementById('m-doc').value,
+    wpp:document.getElementById('m-wpp').value,
+    end:document.getElementById('m-end').value,
+    cargo:document.getElementById('m-cargo').value,
+    email:document.getElementById('m-email').value,
+    site:document.getElementById('m-site').value,
+    logo:logoData
+  };
+  salvarEmpresaData(dados);
+  aplicarEmpresaNoCampos(dados);
+  atualizarResumoEmpresa();
+  fecharModalEmpresa();
+  showToast('Dados da empresa salvos!');
+}
+
+document.getElementById('modal-empresa').addEventListener('click',function(e){
+  if(e.target===this)fecharModalEmpresa();
+});
+
+/* ---- INIT ---- */
 function init(){
   document.getElementById('p-data').value=new Date().toISOString().split('T')[0];
   document.getElementById('ass-data').value=new Date().toISOString().split('T')[0];
   try{
-    const s=JSON.parse(localStorage.getItem('orc_session')||'{}');
-    const cfg=JSON.parse(localStorage.getItem('orc_cfg_'+(s.id||''))||'{}');
-    if(cfg.nome)document.getElementById('e-nome').value=cfg.nome;
-    if(cfg.doc)document.getElementById('e-doc').value=cfg.doc;
-    if(cfg.tel)document.getElementById('e-wpp').value=cfg.tel;
-    if(cfg.end)document.getElementById('e-end').value=cfg.end;
-    const logo=localStorage.getItem('orc_logo_m2')||localStorage.getItem('orc_logo');
-    if(logo){logoData=logo;document.getElementById('logo-img').src=logo;document.getElementById('logo-img').style.display='block';document.getElementById('logo-icon').style.display='none';}
+    var s=JSON.parse(localStorage.getItem('orc_session')||'{}');
+    var empresa=getEmpresaData();
+    if(!empresa){
+      var cfg=JSON.parse(localStorage.getItem('orc_cfg_'+(s.id||''))||'{}');
+      if(cfg.nome)empresa={nome:cfg.nome,doc:cfg.doc||'',wpp:cfg.tel||'',end:cfg.end||'',cargo:''};
+    }
+    if(empresa){
+      aplicarEmpresaNoCampos(empresa);
+      if(empresa.logo){
+        logoData=empresa.logo;
+        document.getElementById('logo-img').src=logoData;
+        document.getElementById('logo-img').style.display='block';
+        document.getElementById('logo-icon').style.display='none';
+      }else{
+        var logo=localStorage.getItem('orc_logo_m2')||localStorage.getItem('orc_logo');
+        if(logo){logoData=logo;document.getElementById('logo-img').src=logo;document.getElementById('logo-img').style.display='block';document.getElementById('logo-icon').style.display='none';}
+      }
+      atualizarResumoEmpresa();
+    } else {
+      document.getElementById('empresa-campos').style.display='block';
+    }
     historico=JSON.parse(localStorage.getItem('orc_m2_'+(s.id||'local'))||'[]');
     renderHistorico();
-  }catch(e){}
+  }catch(e){
+    document.getElementById('empresa-campos').style.display='block';
+  }
   applyTheme();addItem();
 }
 init();
