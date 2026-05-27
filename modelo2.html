@@ -312,6 +312,17 @@ body{font-family:'DM Sans',sans-serif;background:var(--bg);color:var(--text);min
         <div class="field"><label>Local</label><input id="ass-local" type="text" placeholder="Parnaíba - PI"></div>
         <div class="field"><label>Data da assinatura</label><input id="ass-data" type="date"></div>
       </div>
+      <!-- Prévia + botão de assinatura -->
+      <div style="margin-top:10px;display:flex;align-items:center;gap:14px;flex-wrap:wrap">
+        <div id="ass-preview-wrap" style="border:1px solid #e5e7eb;border-radius:8px;padding:6px 12px;background:#fafaf8;min-width:140px;min-height:52px;display:flex;align-items:center;justify-content:center">
+          <img id="ass-preview-img" src="" style="display:none;max-height:44px;max-width:180px;object-fit:contain">
+          <span id="ass-preview-placeholder" style="font-size:12px;color:#9ca3af;font-style:italic">Sem assinatura salva</span>
+        </div>
+        <div style="display:flex;flex-direction:column;gap:6px">
+          <button onclick="abrirModalAss()" style="display:flex;align-items:center;gap:6px;font-size:12px;background:#1a5c3a;color:#fff;border:none;padding:8px 14px;border-radius:7px;cursor:pointer;font-family:inherit;font-weight:500"><i class="ti ti-writing" aria-hidden="true"></i> <span id="btn-ass-label">Criar minha assinatura</span></button>
+          <button onclick="removerAssinatura()" id="btn-remover-ass" style="display:none;align-items:center;gap:5px;font-size:12px;background:#fff;border:1px solid #fecaca;color:#dc2626;padding:6px 12px;border-radius:7px;cursor:pointer;font-family:inherit"><i class="ti ti-trash" aria-hidden="true"></i> Remover</button>
+        </div>
+      </div>
     </div>
 
     <div class="actions">
@@ -364,11 +375,16 @@ body{font-family:'DM Sans',sans-serif;background:var(--bg);color:var(--text);min
 
       <div class="prev-ass" id="prev-ass">
         <div class="ass-blk">
+          <!-- Imagem da assinatura do responsável (se salva) -->
+          <div id="prev-ass-img-wrap" style="height:52px;display:flex;align-items:flex-end;justify-content:center;margin-bottom:2px">
+            <img id="prev-ass-img" src="" style="display:none;max-height:48px;max-width:160px;object-fit:contain">
+          </div>
           <div class="linha"></div>
           <div class="nome" id="prev-ass-empresa"></div>
           <div class="cargo" id="prev-ass-cargo"></div>
         </div>
         <div class="ass-blk">
+          <div style="height:52px"></div>
           <div class="linha"></div>
           <div class="nome" id="prev-ass-cliente"></div>
           <div class="cargo">Cliente / Responsável</div>
@@ -543,6 +559,29 @@ body{font-family:'DM Sans',sans-serif;background:var(--bg);color:var(--text);min
     <div style="display:flex;gap:8px;justify-content:flex-end;margin-top:1rem">
       <button onclick="fecharModalEmpresa()" style="padding:9px 18px;border-radius:8px;border:1px solid #e5e7eb;background:#fff;cursor:pointer;font-size:13px;font-family:inherit">Cancelar</button>
       <button onclick="salvarModal()" style="padding:9px 18px;border-radius:8px;border:none;background:#1a5c3a;color:#fff;cursor:pointer;font-size:13px;font-weight:500;font-family:inherit;display:flex;align-items:center;gap:6px"><i class="ti ti-device-floppy" aria-hidden="true"></i> Salvar dados</button>
+    </div>
+  </div>
+</div>
+
+<!-- MODAL ASSINATURA -->
+<div id="modal-assinatura" style="position:fixed;inset:0;background:rgba(0,0,0,0.5);z-index:400;display:none;align-items:center;justify-content:center;padding:1rem">
+  <div style="background:#fff;border-radius:16px;padding:1.75rem;max-width:500px;width:100%">
+    <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:1rem">
+      <div>
+        <h3 style="font-family:'Syne',sans-serif;font-size:1.1rem;font-weight:700">Minha assinatura</h3>
+        <p style="font-size:12px;color:#6b7280;margin-top:2px">Assine abaixo — fica salva e aparece em todas as propostas</p>
+      </div>
+      <button onclick="fecharModalAss()" style="background:none;border:none;cursor:pointer;font-size:20px;color:#6b7280"><i class="ti ti-x" aria-hidden="true"></i></button>
+    </div>
+    <canvas id="ass-canvas" width="440" height="160"
+      style="border:1.5px dashed #e5e7eb;border-radius:10px;width:100%;touch-action:none;cursor:crosshair;background:#fafaf8;display:block">
+    </canvas>
+    <div style="display:flex;justify-content:space-between;align-items:center;margin-top:10px;flex-wrap:wrap;gap:8px">
+      <button onclick="limparCanvas()" style="display:flex;align-items:center;gap:5px;font-size:12px;background:#fff;border:1px solid #e5e7eb;padding:7px 12px;border-radius:7px;cursor:pointer;font-family:inherit;color:#6b7280"><i class="ti ti-eraser" aria-hidden="true"></i> Limpar</button>
+      <div style="display:flex;gap:8px">
+        <button onclick="fecharModalAss()" style="font-size:13px;background:#fff;border:1px solid #e5e7eb;padding:8px 16px;border-radius:8px;cursor:pointer;font-family:inherit">Cancelar</button>
+        <button onclick="salvarAssinatura()" style="font-size:13px;background:#1a5c3a;color:#fff;border:none;padding:8px 18px;border-radius:8px;cursor:pointer;font-family:inherit;font-weight:500;display:flex;align-items:center;gap:6px"><i class="ti ti-check" aria-hidden="true"></i> Salvar assinatura</button>
+      </div>
     </div>
   </div>
 </div>
@@ -736,6 +775,13 @@ function showPreview(){
   const ow=document.getElementById('prev-obs-wrap');
   if(obs){document.getElementById('prev-obs').textContent=obs;ow.style.display='block';}else ow.style.display='none';
 
+  // Assinatura no preview
+  if(assinaturaData){
+    document.getElementById('prev-ass-img').src=assinaturaData;
+    document.getElementById('prev-ass-img').style.display='block';
+  }else{
+    document.getElementById('prev-ass-img').style.display='none';
+  }
   document.getElementById('prev-ass-empresa').textContent=document.getElementById('e-nome').value||'Empresa';
   document.getElementById('prev-ass-cargo').textContent=document.getElementById('e-cargo').value||'Responsável';
   document.getElementById('prev-ass-cliente').textContent=document.getElementById('c-nome').value||'Cliente';
@@ -888,7 +934,11 @@ function exportarPDF(){
   const obs=document.getElementById('obs').value;
   if(obs){ty+=8;doc.setFont('helvetica','bold');doc.text('Observações:',14,ty);ty+=5;doc.setFont('helvetica','normal');doc.text(doc.splitTextToSize(obs,182),14,ty);}
 
-  const assY=doc.internal.pageSize.height-38;
+  const assY=doc.internal.pageSize.height-44;
+  // Assinatura do responsável (imagem, se salva)
+  if(assinaturaData){
+    try{doc.addImage(assinaturaData,'PNG',14,assY-18,76,16);}catch(e){}
+  }
   doc.setDrawColor(40,40,40);doc.line(14,assY,90,assY);doc.line(120,assY,196,assY);
   doc.setTextColor(40,40,40);doc.setFontSize(8);doc.setFont('helvetica','bold');
   doc.text(empresa,52,assY+4,{align:'center'});doc.text(cliente,158,assY+4,{align:'center'});
@@ -1244,6 +1294,136 @@ document.getElementById('modal-empresa').addEventListener('click',function(e){
   if(e.target===this)fecharModalEmpresa();
 });
 
+/* ---- ASSINATURA ---- */
+var assinaturaData = '';
+var assCanvas, assCtx, assDesenhando = false, assUltimoX = 0, assUltimoY = 0;
+
+function getAssKey(){
+  try{var s=JSON.parse(localStorage.getItem('orc_session')||'{}');return'orc_ass_m2_'+(s.id||'local');}
+  catch(e){return'orc_ass_m2_local';}
+}
+
+function carregarAssinaturaSalva(){
+  try{
+    var salva=localStorage.getItem(getAssKey());
+    if(salva){assinaturaData=salva;aplicarAssinaturaUI();}
+  }catch(e){}
+}
+
+function aplicarAssinaturaUI(){
+  if(!assinaturaData)return;
+  // Preview na seção
+  document.getElementById('ass-preview-img').src=assinaturaData;
+  document.getElementById('ass-preview-img').style.display='block';
+  document.getElementById('ass-preview-placeholder').style.display='none';
+  document.getElementById('btn-ass-label').textContent='Editar assinatura';
+  document.getElementById('btn-remover-ass').style.display='flex';
+  // Preview no orçamento
+  document.getElementById('prev-ass-img').src=assinaturaData;
+  document.getElementById('prev-ass-img').style.display='block';
+}
+
+function removerAssinatura(){
+  if(!confirm('Remover assinatura salva?'))return;
+  assinaturaData='';
+  try{localStorage.removeItem(getAssKey());}catch(e){}
+  document.getElementById('ass-preview-img').style.display='none';
+  document.getElementById('ass-preview-placeholder').style.display='';
+  document.getElementById('btn-ass-label').textContent='Criar minha assinatura';
+  document.getElementById('btn-remover-ass').style.display='none';
+  document.getElementById('prev-ass-img').style.display='none';
+  showToast('Assinatura removida.','ti-trash');
+}
+
+function abrirModalAss(){
+  document.getElementById('modal-assinatura').style.display='flex';
+  setTimeout(function(){
+    assCanvas=document.getElementById('ass-canvas');
+    assCtx=assCanvas.getContext('2d');
+    // Ajustar resolução real do canvas para o tamanho exibido
+    var rect=assCanvas.getBoundingClientRect();
+    assCanvas.width=rect.width*2;
+    assCanvas.height=rect.height*2;
+    assCtx.scale(2,2);
+    assCtx.strokeStyle='#1a1a18';
+    assCtx.lineWidth=2.5;
+    assCtx.lineCap='round';
+    assCtx.lineJoin='round';
+    // Se já tem assinatura, mostrar no canvas
+    if(assinaturaData){
+      var img=new Image();
+      img.onload=function(){assCtx.drawImage(img,0,0,rect.width,rect.height);};
+      img.src=assinaturaData;
+    }
+    registrarEventosCanvas();
+  },80);
+}
+
+function fecharModalAss(){
+  document.getElementById('modal-assinatura').style.display='none';
+}
+
+function registrarEventosCanvas(){
+  // Mouse
+  assCanvas.addEventListener('mousedown',function(e){
+    assDesenhando=true;
+    var r=assCanvas.getBoundingClientRect();
+    assUltimoX=(e.clientX-r.left);
+    assUltimoY=(e.clientY-r.top);
+  });
+  assCanvas.addEventListener('mousemove',function(e){
+    if(!assDesenhando)return;
+    var r=assCanvas.getBoundingClientRect();
+    var x=(e.clientX-r.left),y=(e.clientY-r.top);
+    assCtx.beginPath();assCtx.moveTo(assUltimoX,assUltimoY);assCtx.lineTo(x,y);assCtx.stroke();
+    assUltimoX=x;assUltimoY=y;
+  });
+  assCanvas.addEventListener('mouseup',function(){assDesenhando=false;});
+  assCanvas.addEventListener('mouseleave',function(){assDesenhando=false;});
+  // Touch (celular)
+  assCanvas.addEventListener('touchstart',function(e){
+    e.preventDefault();assDesenhando=true;
+    var r=assCanvas.getBoundingClientRect();
+    var t=e.touches[0];
+    assUltimoX=(t.clientX-r.left);assUltimoY=(t.clientY-r.top);
+  },{passive:false});
+  assCanvas.addEventListener('touchmove',function(e){
+    e.preventDefault();if(!assDesenhando)return;
+    var r=assCanvas.getBoundingClientRect();
+    var t=e.touches[0];
+    var x=(t.clientX-r.left),y=(t.clientY-r.top);
+    assCtx.beginPath();assCtx.moveTo(assUltimoX,assUltimoY);assCtx.lineTo(x,y);assCtx.stroke();
+    assUltimoX=x;assUltimoY=y;
+  },{passive:false});
+  assCanvas.addEventListener('touchend',function(){assDesenhando=false;});
+}
+
+function limparCanvas(){
+  if(assCtx){
+    var r=assCanvas.getBoundingClientRect();
+    assCtx.clearRect(0,0,r.width,r.height);
+  }
+}
+
+function salvarAssinatura(){
+  var canvas=document.getElementById('ass-canvas');
+  // Verificar se foi desenhado algo
+  var ctx=canvas.getContext('2d');
+  var data=ctx.getImageData(0,0,canvas.width,canvas.height).data;
+  var vazio=true;
+  for(var i=3;i<data.length;i+=4){if(data[i]>0){vazio=false;break;}}
+  if(vazio){showToast('Desenhe sua assinatura primeiro.','ti-alert-circle');return;}
+  assinaturaData=canvas.toDataURL('image/png');
+  try{localStorage.setItem(getAssKey(),assinaturaData);}catch(e){}
+  aplicarAssinaturaUI();
+  fecharModalAss();
+  showToast('Assinatura salva!');
+}
+
+document.getElementById('modal-assinatura').addEventListener('click',function(e){
+  if(e.target===this)fecharModalAss();
+});
+
 /* ---- INIT ---- */
 function init(){
   document.getElementById('p-data').value=new Date().toISOString().split('T')[0];
@@ -1275,6 +1455,7 @@ function init(){
   }catch(e){
     document.getElementById('empresa-campos').style.display='block';
   }
+  carregarAssinaturaSalva();
   applyTheme();addItem();
 }
 init();
